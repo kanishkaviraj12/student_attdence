@@ -20,7 +20,7 @@ class _QRViewExampleState extends State<QRViewExample> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('QR & Barcode Scanner'),
+        title: const Text('QR & Barcode Scanner'),
       ),
       body: Column(
         children: <Widget>[
@@ -34,7 +34,7 @@ class _QRViewExampleState extends State<QRViewExample> {
                   onQRViewCreated: _onQRViewCreated,
                 ),
                 CustomPaint(
-                  size: Size(200, 200),
+                  size: const Size(200, 200),
                   painter: _CornerPainter(),
                 ),
               ],
@@ -43,14 +43,14 @@ class _QRViewExampleState extends State<QRViewExample> {
           Expanded(
             flex: 1,
             child: Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               child: TextField(
                 controller: _textEditingController,
                 readOnly: true,
                 maxLines: null,
                 expands: true,
                 textAlignVertical: TextAlignVertical.center,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Scanned Text',
                   hintText: 'No text found',
@@ -64,7 +64,7 @@ class _QRViewExampleState extends State<QRViewExample> {
       floatingActionButton: FloatingActionButton(
         onPressed: _scanBarcode,
         tooltip: 'Scan',
-        child: Icon(Icons.camera),
+        child: const Icon(Icons.camera),
       ),
     );
   }
@@ -111,8 +111,8 @@ class _CornerPainter extends CustomPainter {
       ..color = Colors.white
       ..strokeWidth = 4;
 
-    canvas.drawLine(Offset(0, 0), Offset(20, 0), paint);
-    canvas.drawLine(Offset(0, 0), Offset(0, 20), paint);
+    canvas.drawLine(const Offset(0, 0), const Offset(20, 0), paint);
+    canvas.drawLine(const Offset(0, 0), const Offset(0, 20), paint);
 
     canvas.drawLine(Offset(size.width - 20, 0), Offset(size.width, 0), paint);
     canvas.drawLine(Offset(size.width, 0), Offset(size.width, 20), paint);
