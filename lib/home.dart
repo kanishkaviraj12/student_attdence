@@ -6,6 +6,7 @@ import 'package:student_attdence/barcodegenarater.dart';
 import 'package:student_attdence/barcodescanner.dart';
 import 'package:student_attdence/database.dart';
 import 'package:student_attdence/qrcodegenerater.dart';
+import 'package:student_attdence/qrcodescanner.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({super.key});
@@ -20,6 +21,7 @@ class _HomePageState extends State<HomePage> {
       "name": _nameController.text,
       "email": _emailController.text,
       "website": _websiteController.text,
+      "regNo": _regController.text,
     };
 
     await DatabaseMethod().addUserDetails(uploadData);
@@ -37,6 +39,7 @@ class _HomePageState extends State<HomePage> {
   final _websiteController = TextEditingController();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _regController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -63,17 +66,18 @@ class _HomePageState extends State<HomePage> {
                   controller: _nameController,
                   decoration: InputDecoration(hintText: "Name"),
                 ),
-
                 TextFormField(
                   controller: _emailController,
                   decoration: InputDecoration(hintText: "Email"),
                 ),
-
                 TextFormField(
                   controller: _websiteController,
                   decoration: InputDecoration(hintText: "website"),
                 ),
-
+                TextFormField(
+                  controller: _regController,
+                  decoration: InputDecoration(hintText: "Reg No"),
+                ),
                 ElevatedButton(
                   onPressed: () {
                     uploadData();
@@ -83,12 +87,12 @@ class _HomePageState extends State<HomePage> {
                                 name: _nameController.text,
                                 email: _emailController.text,
                                 website: _websiteController.text,
+                                regNo: _regController.text,
                               )),
                     );
                   },
                   child: Text("Generate QR Code"),
                 ),
-
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -98,13 +102,11 @@ class _HomePageState extends State<HomePage> {
                   },
                   child: Text("Scan QR Code"),
                 ),
-
                 ElevatedButton(
                     onPressed: () {
                       uploadData();
                     },
                     child: Text("Demo")),
-
                 ElevatedButton(
                   onPressed: () {
                     uploadData();
@@ -115,22 +117,22 @@ class _HomePageState extends State<HomePage> {
                           name: _nameController.text,
                           email: _emailController.text,
                           website: _websiteController.text,
+                          regNo: _regController.text,
                         ),
                       ),
                     );
                   },
                   child: Text("Generate Barcode"),
                 ),
-
-                // ElevatedButton(
-                //   onPressed: () {
-                //     Navigator.push(
-                //       context,
-                //       MaterialPageRoute(builder: (context) => BarcodeScanner()),
-                //     );
-                //   },
-                //   child: Text("Scan Barcode"),
-                // ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Barcodescanner()),
+                    );
+                  },
+                  child: Text("Scan Barcode"),
+                ),
               ],
             ),
           ),

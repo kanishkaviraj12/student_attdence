@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, non_constant_identifier_names, use_build_context_synchronously
+// ignore_for_file: prefer_const_constructors, non_constant_identifier_names, use_build_context_synchronously, prefer_const_constructors_in_immutables
 
 import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -8,22 +8,32 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:syncfusion_flutter_barcodes/barcodes.dart';
 
-class BarcodeGenerator extends StatelessWidget {
+class BarcodeGenerator extends StatefulWidget {
   BarcodeGenerator({
     super.key,
     required this.name,
     required this.email,
     required this.website,
+    required this.regNo,
   });
 
   final String name;
   final String email;
   final String website;
+  final String regNo;
 
+  @override
+  State<BarcodeGenerator> createState() => _BarcodeGeneratorState();
+}
+
+class _BarcodeGeneratorState extends State<BarcodeGenerator> {
   final ScreenshotController screenshotController = ScreenshotController();
 
+  Uint8List? imageBytes; // Declare imageBytes as an instance variable
+  String? imageName; // Declare imageName as an instance variable
+
   String generateBarcodeData() {
-    return "$name\n$email\n$website";
+    return widget.regNo;
   }
 
   Future<void> captureAndSaveImage(BuildContext context) async {
@@ -33,8 +43,8 @@ class BarcodeGenerator extends StatelessWidget {
       final PermissionStatus status = await Permission.storage.request();
       if (status.isGranted) {
         try {
-          // Generate a unique filename
-          String imageName = generateUniqueFileName('barcode_screenshot.jpg');
+          // Generate a unique filename including user's name
+          String imageName = generateUniqueFileName(widget.name);
 
           // Upload the image to Firebase Cloud Storage
           await uploadScreenshot(uint8list, imageName);
@@ -97,12 +107,14 @@ class BarcodeGenerator extends StatelessWidget {
     }
   }
 
-  // Function to generate a unique filename
-  String generateUniqueFileName(String fileName) {
+  String generateUniqueFileName(String name) {
     String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    return '${timestamp}_$fileName';
+    // Extract only the first 10 characters of the timestamp to exclude milliseconds
+    String truncatedTimestamp = timestamp.substring(0, 0);
+    return '$name $truncatedTimestamp.jpg';
   }
 
+  //Above coding is UI part of this page
   @override
   Widget build(BuildContext context) {
     String barcodeData = generateBarcodeData();
@@ -133,6 +145,7 @@ class BarcodeGenerator extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 await captureAndSaveImage(context);
+                await uploadScreenshot(imageBytes!, imageName!);
               },
               child: Text("Capture and save as image"),
             )
