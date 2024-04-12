@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:student_attdence/markattendance.dart';
 
 class Barcodescanner extends StatefulWidget {
   const Barcodescanner({super.key});
@@ -68,21 +69,37 @@ class _BarcodescannerState extends State<Barcodescanner> {
       print('Documents: ${snapshot.docs}');
 
       if (snapshot.docs.isNotEmpty) {
-        // Barcode found, update text field with formatted data
-        Map<String, dynamic> data = snapshot.docs.first.data();
-        String formattedData = '';
-        data.forEach((key, value) {
-          formattedData += '$key: $value\n';
-        });
-        setState(() {
-          _textEditingController.text = formattedData;
-        });
+        // Navigate to attendance marking page
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => //MarkAttendancePage(),
+                MarkAttendancePage(studentData: snapshot.docs.first.data()),
+          ),
+        );
       } else {
         // Barcode not found
         setState(() {
           _textEditingController.text = 'No data found for barcode: $barcode';
         });
       }
+
+      // if (snapshot.docs.isNotEmpty) {
+      //   // Barcode found, update text field with formatted data
+      //   Map<String, dynamic> data = snapshot.docs.first.data();
+      //   String formattedData = '';
+      //   data.forEach((key, value) {
+      //     formattedData += '$key: $value\n';
+      //   });
+      //   setState(() {
+      //     _textEditingController.text = formattedData;
+      //   });
+      // } else {
+      //   // Barcode not found
+      //   setState(() {
+      //     _textEditingController.text = 'No data found for barcode: $barcode';
+      //   });
+      // }
     } catch (e) {
       setState(() {
         _textEditingController.text = 'Error: $e';
