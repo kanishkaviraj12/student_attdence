@@ -2,9 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:student_attdence/AddCourses.dart';
 import 'package:student_attdence/barcodegenarater.dart';
 import 'package:student_attdence/barcodescanner.dart';
 import 'package:student_attdence/database.dart';
+import 'package:student_attdence/newhome.dart';
 import 'package:student_attdence/qrcodegenerater.dart';
 import 'package:student_attdence/qrcodescanner.dart';
 
@@ -132,6 +134,24 @@ class _HomePageState extends State<HomePage> {
                     );
                   },
                   child: Text("Scan Barcode"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AddCourses()),
+                    );
+                  },
+                  child: Text("Add Courses"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MyHomePage()),
+                    );
+                  },
+                  child: Text("New HomePage"),
                 ),
               ],
             ),
