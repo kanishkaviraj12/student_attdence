@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:student_attdence/AddCourses.dart';
 import 'package:student_attdence/barcodegenarater.dart';
-import 'package:student_attdence/barcodescanner.dart';
 import 'package:student_attdence/database.dart';
 import 'package:student_attdence/newhome.dart';
 import 'package:student_attdence/qrcodegenerater.dart';
