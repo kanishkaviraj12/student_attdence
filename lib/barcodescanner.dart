@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:student_attdence/markattendance.dart';
 
 class Barcodescanner extends StatefulWidget {
-  const Barcodescanner({super.key});
+  const Barcodescanner({super.key, required String courseName});
 
   @override
   State<StatefulWidget> createState() => _BarcodescannerState();

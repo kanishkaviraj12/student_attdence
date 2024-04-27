@@ -128,10 +128,10 @@ class _HomePageState extends State<HomePage> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Barcodescanner()),
-                    );
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(builder: (context) => Barcodescanner()),
+                    // );
                   },
                   child: Text("Scan Barcode"),
                 ),
