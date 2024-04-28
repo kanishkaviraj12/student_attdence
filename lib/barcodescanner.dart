@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,38 +15,26 @@ class Barcodescanner extends StatefulWidget {
 class _BarcodescannerState extends State<Barcodescanner> {
   final TextEditingController _textEditingController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Call the barcode scanning method when the page loads
+    _scanBarcode();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: _scanBarcode,
-        tooltip: 'Scan',
-        child: const Icon(Icons.camera),
+      appBar: AppBar(
+        title: Text('Barcode Scanner'),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            flex: 1,
-            child: Padding(
-              padding: const EdgeInsets.all(30.0),
-              child: TextField(
-                controller: _textEditingController,
-                readOnly: true,
-                maxLines: null,
-                expands: true,
-                textAlignVertical: TextAlignVertical.center,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Scanned Text',
-                  hintText: 'No text found',
-                ),
-                enableInteractiveSelection: true,
-              ),
-            ),
-          ),
-        ],
-      ),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            ) // Display a loading indicator while scanning
+          : Column(),
     );
   }
 
@@ -73,36 +63,33 @@ class _BarcodescannerState extends State<Barcodescanner> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => //MarkAttendancePage(),
+            builder: (context) =>
                 MarkAttendancePage(studentData: snapshot.docs.first.data()),
           ),
         );
       } else {
-        // Barcode not found
-        setState(() {
-          _textEditingController.text = 'No data found for barcode: $barcode';
-        });
+        // Show error message popup
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Error'),
+            content: Text('No data found for barcode: $barcode'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); //one step back
+                  Navigator.of(context).pop(); //one step back
+                },
+                child: Text('OK'),
+              ),
+            ],
+          ),
+        );
       }
-
-      // if (snapshot.docs.isNotEmpty) {
-      //   // Barcode found, update text field with formatted data
-      //   Map<String, dynamic> data = snapshot.docs.first.data();
-      //   String formattedData = '';
-      //   data.forEach((key, value) {
-      //     formattedData += '$key: $value\n';
-      //   });
-      //   setState(() {
-      //     _textEditingController.text = formattedData;
-      //   });
-      // } else {
-      //   // Barcode not found
-      //   setState(() {
-      //     _textEditingController.text = 'No data found for barcode: $barcode';
-      //   });
-      // }
     } catch (e) {
       setState(() {
         _textEditingController.text = 'Error: $e';
+        _isLoading = false; // Set loading to false as scanning is completed
       });
     }
   }

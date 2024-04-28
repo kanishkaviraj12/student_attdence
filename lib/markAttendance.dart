@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:student_attdence/newhome.dart';
 
 class MarkAttendancePage extends StatefulWidget {
   final Map<String, dynamic> studentData;
@@ -17,18 +18,19 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
   bool _isSaving = false;
 
   @override
+  void initState() {
+    super.initState();
+    _saveAttendanceData();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Mark Attendance'),
       ),
       body: Center(
-        child: _isSaving
-            ? CircularProgressIndicator()
-            : ElevatedButton(
-                onPressed: _saveAttendanceData,
-                child: Text('Save Attendance'),
-              ),
+        child: _isSaving ? CircularProgressIndicator() : Text(''),
       ),
     );
   }
@@ -55,18 +57,54 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
           .doc(barcode)
           .set(attendanceRecord);
 
-      // Show a snackbar to indicate successful save
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Attendance saved successfully'),
-        ),
+      // Show a dialog to indicate successful save
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Success'),
+            content: Text('Attendance saved successfully'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => MyHomePage(),
+                    ),
+                    (route) => false,
+                  );
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
       );
     } catch (error) {
-      // Show a snackbar for any errors
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to save attendance: $error'),
-        ),
+      // Show a dialog for any errors
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Failed to save attendance: $error'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => MyHomePage(),
+                    ),
+                    (route) => false,
+                  );
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
       );
     } finally {
       // Reset the saving state
@@ -76,6 +114,7 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
     }
   }
 }
+
 
 
 
