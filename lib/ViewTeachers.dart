@@ -20,19 +20,6 @@ class ViewTeachers extends StatelessWidget {
             );
           }
           if (snapshot.hasError) {
-            // Print the error to debug console
-            print('Error fetching data: ${snapshot.error}');
-            // Display an error message to the user
-            return Center(
-              child: Text('Error fetching data. Please try again later.'),
-            );
-          }
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          if (snapshot.hasError) {
             return Center(
               child: Text('Error: ${snapshot.error}'),
             );
