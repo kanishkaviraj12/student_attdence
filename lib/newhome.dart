@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:student_attdence/AddCourses.dart';
 import 'package:student_attdence/AttendanceReport.dart';
 import 'package:student_attdence/ViewTeachers.dart';
-import 'package:student_attdence/barcodescanner.dart';
 import 'package:student_attdence/home.dart';
 
 class MyHomePage extends StatefulWidget {

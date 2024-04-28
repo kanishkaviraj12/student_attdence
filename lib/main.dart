@@ -3,7 +3,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:student_attdence/firebase_options.dart';
-import 'package:student_attdence/home.dart';
 import 'package:student_attdence/newhome.dart';
 
 Future<void> main() async {
