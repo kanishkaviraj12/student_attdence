@@ -2,12 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:student_attdence/AddCourses.dart';
 import 'package:student_attdence/barcodegenarater.dart';
 import 'package:student_attdence/database.dart';
-import 'package:student_attdence/newhome.dart';
-import 'package:student_attdence/qrcodegenerater.dart';
-import 'package:student_attdence/qrcodescanner.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({super.key});
@@ -49,11 +45,11 @@ class _HomePageState extends State<HomePage> {
       title: "Face",
       home: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.lightGreenAccent,
+          backgroundColor: Colors.white,
           title: Text(
-            "Student Attdence App",
+            "Student Registration",
             style: TextStyle(
-              fontWeight: FontWeight.bold,
+              //fontWeight: FontWeight.bold,
               color: Color.fromARGB(255, 45, 44, 44),
             ),
           ),
@@ -79,35 +75,33 @@ class _HomePageState extends State<HomePage> {
                   controller: _regController,
                   decoration: InputDecoration(hintText: "Reg No"),
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    uploadData();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (context) => QRcodeGenerater(
-                                name: _nameController.text,
-                                email: _emailController.text,
-                                website: _websiteController.text,
-                                regNo: _regController.text,
-                              )),
-                    );
-                  },
-                  child: Text("Generate QR Code"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => QRViewExample()),
-                    );
-                  },
-                  child: Text("Scan QR Code"),
-                ),
-                ElevatedButton(
-                    onPressed: () {
-                      uploadData();
-                    },
-                    child: Text("Demo")),
+
+                // ElevatedButton(
+                //   onPressed: () {
+                //     uploadData();
+                //     Navigator.of(context).push(
+                //       MaterialPageRoute(
+                //           builder: (context) => QRcodeGenerater(
+                //                 name: _nameController.text,
+                //                 email: _emailController.text,
+                //                 website: _websiteController.text,
+                //                 regNo: _regController.text,
+                //               )),
+                //     );
+                //   },
+                //   child: Text("Generate QR Code"),
+                // ),
+
+                // ElevatedButton(
+                //   onPressed: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(builder: (context) => QRViewExample()),
+                //     );
+                //   },
+                //   child: Text("Scan QR Code"),
+                // ),
+
                 ElevatedButton(
                   onPressed: () {
                     uploadData();
@@ -124,33 +118,6 @@ class _HomePageState extends State<HomePage> {
                     );
                   },
                   child: Text("Generate Barcode"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(builder: (context) => Barcodescanner()),
-                    // );
-                  },
-                  child: Text("Scan Barcode"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => AddCourses()),
-                    );
-                  },
-                  child: Text("Add Courses"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => MyHomePage()),
-                    );
-                  },
-                  child: Text("New HomePage"),
                 ),
               ],
             ),

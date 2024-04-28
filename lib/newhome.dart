@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_constructors_in_immutables, library_private_types_in_public_api, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
+import 'package:student_attdence/AddCourses.dart';
 import 'package:student_attdence/AttendanceReport.dart';
 import 'package:student_attdence/ViewTeachers.dart';
 import 'package:student_attdence/barcodescanner.dart';
@@ -17,9 +18,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
   static final List<Widget> _widgetOptions = <Widget>[
     ViewTeachers(),
-    Barcodescanner(
-      courseName: '',
-    ),
+    AddCourses(),
     HomePage(),
     Report(),
   ];
@@ -47,8 +46,8 @@ class _MyHomePageState extends State<MyHomePage> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.scanner_rounded),
-            label: 'scanner',
+            icon: Icon(Icons.book_rounded),
+            label: 'Add Courses',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.app_registration_rounded),

@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:student_attdence/firebase_options.dart';
 import 'package:student_attdence/home.dart';
+import 'package:student_attdence/newhome.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +24,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomePage(), // Set the home property to the home page
+      home: MyHomePage(), // Set the home property to the home page
     );
   }
 }
