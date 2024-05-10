@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:student_attdence/AddCourses.dart';
+import 'package:student_attdence/AddStudentForCourses.dart';
 import 'package:student_attdence/AttendanceReport.dart';
 import 'package:student_attdence/ViewTeachers.dart';
 import 'package:student_attdence/home.dart';
@@ -20,6 +21,7 @@ class _MyHomePageState extends State<MyHomePage> {
     AddCourses(),
     HomePage(),
     Report(),
+    StudentSearchScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -55,6 +57,10 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.repartition_rounded),
             label: 'Attendace report',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_2_outlined),
+            label: 'Add Student',
           ),
         ],
         currentIndex: _selectedIndex,

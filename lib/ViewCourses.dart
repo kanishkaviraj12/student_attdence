@@ -63,6 +63,7 @@ class _ViewCoursesState extends State<ViewCourses> {
                   MaterialPageRoute(
                     builder: (context) => Barcodescanner(
                       courseName: courses[index],
+                      teacherName: widget.teacherName,
                     ),
                   ),
                 );
