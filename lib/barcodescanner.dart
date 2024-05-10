@@ -1,6 +1,9 @@
+// ignore_for_file: prefer_const_constructors, use_super_parameters, use_build_context_synchronously, avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:student_attdence/newhome.dart';
 
 class Barcodescanner extends StatefulWidget {
   final String courseName;
@@ -63,6 +66,7 @@ class _BarcodescannerState extends State<Barcodescanner> {
             actions: <Widget>[
               TextButton(
                 onPressed: () {
+                  Navigator.of(context).pop(); //one step back
                   Navigator.of(context).pop(); //one step back
                 },
                 child: Text('OK'),
@@ -130,7 +134,13 @@ class _BarcodescannerState extends State<Barcodescanner> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); //one step back
+                Navigator.of(context).pop();
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => MyHomePage(),
+                  ),
+                  (route) => false,
+                );
               },
               child: Text('OK'),
             ),
@@ -147,7 +157,13 @@ class _BarcodescannerState extends State<Barcodescanner> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); //one step back
+                Navigator.of(context).pop();
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => MyHomePage(),
+                  ),
+                  (route) => false,
+                );
               },
               child: Text('OK'),
             ),
