@@ -102,6 +102,8 @@ class _AddStudentState extends State<AddStudent> {
   }
 
   void _showCourseSelectionDialog(BuildContext context, String regNo) {
+    List<String> tempSelectedCourses = List.from(selectedCourses);
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -141,13 +143,14 @@ class _AddStudentState extends State<AddStudent> {
                       itemBuilder: (context, index) {
                         return CheckboxListTile(
                           title: Text(allCourses[index]),
-                          value: selectedCourses.contains(allCourses[index]),
+                          value:
+                              tempSelectedCourses.contains(allCourses[index]),
                           onChanged: (bool? value) {
                             setState(() {
                               if (value != null && value) {
-                                selectedCourses.add(allCourses[index]);
+                                tempSelectedCourses.add(allCourses[index]);
                               } else {
-                                selectedCourses.remove(allCourses[index]);
+                                tempSelectedCourses.remove(allCourses[index]);
                               }
                             });
                           },
@@ -171,7 +174,9 @@ class _AddStudentState extends State<AddStudent> {
                         .collection('Add Student for courses')
                         .doc(regNo) // Use regNo as document ID
                         .set({
-                      'courses': selectedCourses,
+                      'courses': tempSelectedCourses,
+                      'timestamp':
+                          FieldValue.serverTimestamp(), // Add timestamp
                     }).then((_) {
                       setState(() {
                         selectedCourses.clear(); // Clear selections
