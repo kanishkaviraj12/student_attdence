@@ -21,7 +21,7 @@ class _MyHomePageState extends State<MyHomePage> {
     AddCourses(),
     HomePage(),
     Report(),
-    StudentSearchScreen(),
+    AddStudent(),
   ];
 
   void _onItemTapped(int index) {

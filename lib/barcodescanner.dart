@@ -1,9 +1,9 @@
-// ignore_for_file: prefer_const_constructors, use_super_parameters, use_build_context_synchronously, avoid_print
+// ignore_for_file: use_build_context_synchronously, prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:student_attdence/newhome.dart';
+import 'newhome.dart';
 
 class Barcodescanner extends StatefulWidget {
   final String courseName;
@@ -25,7 +25,6 @@ class _BarcodescannerState extends State<Barcodescanner> {
   @override
   void initState() {
     super.initState();
-    // Call the barcode scanning method when the page loads
     _scanBarcode();
   }
 
@@ -38,7 +37,7 @@ class _BarcodescannerState extends State<Barcodescanner> {
       body: _isLoading
           ? Center(
               child: CircularProgressIndicator(),
-            ) // Display a loading indicator while scanning
+            )
           : Center(
               child: Text('Scanned Barcode: $_scannedBarcode'),
             ),
@@ -48,16 +47,13 @@ class _BarcodescannerState extends State<Barcodescanner> {
   Future<void> _scanBarcode() async {
     try {
       String barcode = await FlutterBarcodeScanner.scanBarcode(
-        '#ff6666', // red color for scan button
-        'Cancel', // cancel button text
-        true, // show flash icon
-        ScanMode.BARCODE, // scan mode
+        '#ff6666',
+        'Cancel',
+        true,
+        ScanMode.BARCODE,
       );
 
-      print('Scanned Barcode: $barcode');
-
       if (barcode == '-1') {
-        // Handle failed barcode scanning
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -66,8 +62,8 @@ class _BarcodescannerState extends State<Barcodescanner> {
             actions: <Widget>[
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); //one step back
-                  Navigator.of(context).pop(); //one step back
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
                 },
                 child: Text('OK'),
               ),
@@ -79,14 +75,13 @@ class _BarcodescannerState extends State<Barcodescanner> {
 
       setState(() {
         _scannedBarcode = barcode;
-        _isLoading = false; // Set loading to false as scanning is completed
+        _isLoading = false;
       });
 
-      // Mark attendance
       await _markAttendance(_scannedBarcode);
     } catch (e) {
       setState(() {
-        _isLoading = false; // Set loading to false as scanning is completed
+        _isLoading = false;
       });
       showDialog(
         context: context,
@@ -96,7 +91,7 @@ class _BarcodescannerState extends State<Barcodescanner> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); //one step back
+                Navigator.of(context).pop();
               },
               child: Text('OK'),
             ),
@@ -110,19 +105,78 @@ class _BarcodescannerState extends State<Barcodescanner> {
     try {
       final String currentDate = DateTime.now().toString();
 
-      Map<String, dynamic> attendanceRecord = {
-        'date': currentDate,
-        'courseName': widget.courseName,
-        'teacherName': widget.teacherName,
-        'scannedTime': currentDate,
-        'attendanceStatus': 'Present',
-      };
+      // Check if scannedBarcode matches any registration numbers displayed in previous page
+      bool isValidRegNo = await _isValidRegNo(scannedBarcode);
 
-      // Save the attendance record to Firestore with student registration number as document ID
-      await _firestore
-          .collection('Attendance')
-          .doc(scannedBarcode)
-          .set(attendanceRecord);
+      if (!isValidRegNo) {
+        // Scanned registration number doesn't match any displayed registration numbers
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Error'),
+            content: Text('This student not Registered for this course.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+
+      // Check if attendance record already exists for this barcode
+      DocumentSnapshot attendanceSnapshot =
+          await _firestore.collection('Attendance').doc(scannedBarcode).get();
+
+      if (attendanceSnapshot.exists) {
+        // Attendance record already exists, check if already marked as present
+        bool isPresent =
+            attendanceSnapshot.get('attendanceStatus') == 'Present';
+        if (isPresent) {
+          // Student already marked as present, show message and return
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('Error'),
+              content: Text('Attendance already marked for this student.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            ),
+          );
+          return;
+        } else {
+          // Update the existing record to mark attendance as present
+          await _firestore.collection('Attendance').doc(scannedBarcode).update({
+            'scannedTime': currentDate,
+            'attendanceStatus': 'Present',
+          });
+        }
+      } else {
+        // Attendance record doesn't exist, create a new record
+        Map<String, dynamic> attendanceRecord = {
+          'date': currentDate,
+          'courseName': widget.courseName,
+          'teacherName': widget.teacherName,
+          'scannedTime': currentDate,
+          'attendanceStatus': 'Present',
+        };
+
+        // Save the attendance record to Firestore with student registration number as document ID
+        await _firestore
+            .collection('Attendance')
+            .doc(scannedBarcode)
+            .set(attendanceRecord);
+      }
 
       // Show success message
       showDialog(
@@ -130,7 +184,7 @@ class _BarcodescannerState extends State<Barcodescanner> {
         builder: (context) => AlertDialog(
           title: Text('Success'),
           content: Text(
-              'Attendance marked successfully for barcode: $scannedBarcode'),
+              'Attendance marked successfully for registration number: $scannedBarcode'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -170,6 +224,25 @@ class _BarcodescannerState extends State<Barcodescanner> {
           ],
         ),
       );
+    }
+  }
+
+  Future<bool> _isValidRegNo(String regNo) async {
+    // Fetch registration numbers displayed in previous page
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('Add Student for courses')
+          .where('courses', arrayContains: widget.courseName)
+          .get();
+
+      List<String> studentRegNos =
+          querySnapshot.docs.map((doc) => doc.id).toList();
+
+      // Check if the scanned registration number exists in the list of displayed registration numbers
+      return studentRegNos.contains(regNo);
+    } catch (error) {
+      print("Error fetching registration numbers: $error");
+      return false; // Return false if there's an error
     }
   }
 }

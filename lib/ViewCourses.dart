@@ -1,9 +1,8 @@
-// ignore_for_file: unnecessary_string_interpolations, prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, avoid_print, use_super_parameters, prefer_const_constructors_in_immutables
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:student_attdence/barcodescanner.dart';
-// Import the page where you want to navigate
+import 'barcodescanner.dart';
 
 class ViewCourses extends StatefulWidget {
   final String teacherName;
@@ -28,7 +27,6 @@ class _ViewCoursesState extends State<ViewCourses> {
       CollectionReference courseCollection =
           FirebaseFirestore.instance.collection('courses');
 
-      // Querying courses related to the selected teacher
       QuerySnapshot querySnapshot = await courseCollection
           .where('instructor', isEqualTo: widget.teacherName)
           .get();
@@ -53,43 +51,60 @@ class _ViewCoursesState extends State<ViewCourses> {
       body: ListView.builder(
         itemCount: courses.length,
         itemBuilder: (BuildContext context, int index) {
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: GestureDetector(
-              onTap: () {
-                // Navigate to course details page
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => Barcodescanner(
-                      courseName: courses[index],
-                      teacherName: widget.teacherName,
-                    ),
-                  ),
-                );
-              },
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${courses[index]}', // Fetching course names from Firestore
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Description of ${courses[index]}',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ],
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Barcodescanner(
+                    courseName: courses[index],
+                    teacherName: widget.teacherName,
                   ),
                 ),
-              ),
+              );
+            },
+            child: FutureBuilder<QuerySnapshot>(
+              future: FirebaseFirestore.instance
+                  .collection('Add Student for courses')
+                  .where('courses', arrayContains: courses[index])
+                  .get(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                }
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return ListTile(
+                    title: Text(courses[index]),
+                    subtitle: Text('No students registered for this course'),
+                  );
+                }
+
+                List<String> studentRegNos =
+                    snapshot.data!.docs.map((doc) => doc.id).toList();
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListTile(
+                      title: Text(
+                        courses[index],
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: studentRegNos
+                            .map((regNo) => Text('Student RegNo: $regNo'))
+                            .toList(),
+                      ),
+                    ),
+                    Divider(),
+                  ],
+                );
+              },
             ),
           );
         },
