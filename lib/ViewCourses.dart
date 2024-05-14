@@ -1,7 +1,7 @@
-// ignore_for_file: prefer_const_constructors, avoid_print, use_super_parameters, prefer_const_constructors_in_immutables
-
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:student_attdence/newhome.dart';
 import 'barcodescanner.dart';
 
 class ViewCourses extends StatefulWidget {
@@ -15,11 +15,44 @@ class ViewCourses extends StatefulWidget {
 
 class _ViewCoursesState extends State<ViewCourses> {
   List<String> courses = [];
+  late Timer _timer;
+  int _totalSeconds =
+      (0 * 60 * 60) + (0 * 60) + 10; // 1 hour, 40 minutes, and 10 seconds
+  int _secondsRemaining = 0;
 
   @override
   void initState() {
     super.initState();
+    _secondsRemaining = _totalSeconds;
     fetchCourses();
+    startTimer();
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  void startTimer() {
+    const oneSecond = Duration(seconds: 1);
+    _timer = Timer.periodic(oneSecond, (Timer timer) {
+      if (_secondsRemaining == 0) {
+        timer.cancel();
+        // Timer is done, navigate to another page or perform any action here
+        // For example:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MyHomePage(),
+          ),
+        );
+      } else {
+        setState(() {
+          _secondsRemaining--;
+        });
+      }
+    });
   }
 
   void fetchCourses() async {
@@ -40,6 +73,18 @@ class _ViewCoursesState extends State<ViewCourses> {
     } catch (error) {
       print("Error fetching courses: $error");
     }
+  }
+
+  String getHours() {
+    return '${(_secondsRemaining ~/ 3600).toString().padLeft(2, '0')}h';
+  }
+
+  String getMinutes() {
+    return '${((_secondsRemaining % 3600) ~/ 60).toString().padLeft(2, '0')}m';
+  }
+
+  String getSeconds() {
+    return '${(_secondsRemaining % 60).toString().padLeft(2, '0')}s';
   }
 
   @override
@@ -71,7 +116,7 @@ class _ViewCoursesState extends State<ViewCourses> {
               builder: (BuildContext context,
                   AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
+                  //return CircularProgressIndicator();
                 }
                 if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
@@ -108,6 +153,34 @@ class _ViewCoursesState extends State<ViewCourses> {
             ),
           );
         },
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Countdown: ${getHours()}:${getMinutes()}:${getSeconds()}',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class TimeoutPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Timeout Page'),
+      ),
+      body: Center(
+        child: Text('Timeout reached!'),
       ),
     );
   }
