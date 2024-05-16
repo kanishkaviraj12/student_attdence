@@ -15,9 +15,9 @@ class ViewCourses extends StatefulWidget {
 
 class _ViewCoursesState extends State<ViewCourses> {
   List<String> courses = [];
+  Map<String, List<String>> courseStudents = {};
   late Timer _timer;
-  int _totalSeconds =
-      (0 * 60 * 60) + (0 * 60) + 10; // 1 hour, 40 minutes, and 10 seconds
+  int _totalSeconds = (0 * 60 * 60) + (0 * 60) + 10; // 10 seconds for example
   int _secondsRemaining = 0;
 
   @override
@@ -39,8 +39,7 @@ class _ViewCoursesState extends State<ViewCourses> {
     _timer = Timer.periodic(oneSecond, (Timer timer) {
       if (_secondsRemaining == 0) {
         timer.cancel();
-        // Timer is done, navigate to another page or perform any action here
-        // For example:
+        markAbsentStudents(); // Mark students as absent
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -70,8 +69,55 @@ class _ViewCoursesState extends State<ViewCourses> {
       setState(() {
         courses = fetchedCourses;
       });
+
+      // Fetch students for each course
+      for (String course in fetchedCourses) {
+        QuerySnapshot studentSnapshot = await FirebaseFirestore.instance
+            .collection('Add Student for courses')
+            .where('courses', arrayContains: course)
+            .get();
+
+        List<String> studentRegNos =
+            studentSnapshot.docs.map((doc) => doc.id).toList();
+
+        setState(() {
+          courseStudents[course] = studentRegNos;
+        });
+      }
     } catch (error) {
       print("Error fetching courses: $error");
+    }
+  }
+
+  Future<void> markAbsentStudents() async {
+    String currentDate = DateTime.now().toString();
+
+    for (String course in courses) {
+      List<String>? students = courseStudents[course];
+
+      if (students != null) {
+        for (String student in students) {
+          DocumentSnapshot attendanceSnapshot = await FirebaseFirestore.instance
+              .collection('Attendance')
+              .doc(student)
+              .get();
+
+          if (!attendanceSnapshot.exists ||
+              attendanceSnapshot.get('attendanceStatus') != 'Present') {
+            // Mark the student as absent if no attendance record exists or if not marked as present
+            await FirebaseFirestore.instance
+                .collection('Attendance')
+                .doc(student)
+                .set({
+              'date': currentDate,
+              'courseName': course,
+              'teacherName': widget.teacherName,
+              'scannedTime': '',
+              'attendanceStatus': 'Absent',
+            }, SetOptions(merge: true));
+          }
+        }
+      }
     }
   }
 
