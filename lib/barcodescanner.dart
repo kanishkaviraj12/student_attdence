@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:student_attdence/ViewCourses.dart';
+import 'package:student_attdence/ViewTeachers.dart';
 import 'newhome.dart';
 
 class Barcodescanner extends StatefulWidget {
@@ -146,7 +148,14 @@ class _BarcodescannerState extends State<Barcodescanner> {
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    // Navigator.of(context).pop();
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            ViewCourses(widget.teacherName),
+                      ),
+                      (route) => false,
+                    );
                   },
                   child: Text('OK'),
                 ),
