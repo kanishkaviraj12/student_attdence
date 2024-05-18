@@ -2,8 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:student_attdence/home.dart';
-import 'package:student_attdence/newhome.dart';
+import 'package:student_attdence/StudentRegistration.dart';
+import 'package:student_attdence/Home%20Page/TeacherHomePage.dart';
+import 'package:student_attdence/Home%20Page/newhome.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -131,21 +132,26 @@ class _LoginFormState extends State<LoginForm> {
         email: email,
         password: password,
       );
+
       // Check if the signed-in user is the admin
       if (userCredential.user!.email == 'admin@gmail.com') {
         // Show a success pop-up message for admin login
-        _showMessageDialog(context, 'Success', 'Admin logged in');
+        _showMessageDialog(context, 'Success', 'Teacher logged in',
+            isAdmin: true);
       } else {
         // Show a success pop-up message for regular user login
-        _showMessageDialog(context, 'Success', 'User logged in successfully!');
+        _showMessageDialog(context, 'Success', 'User logged in successfully!',
+            isAdmin: false);
       }
     } catch (e) {
-      _showMessageDialog(context, 'Error', 'Failed to log in: $e');
+      _showMessageDialog(context, 'Error', 'Failed to log in: $e',
+          isAdmin: false);
     }
   }
 
   Future<void> _showMessageDialog(
-      BuildContext context, String title, String message) async {
+      BuildContext context, String title, String message,
+      {required bool isAdmin}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -165,13 +171,24 @@ class _LoginFormState extends State<LoginForm> {
               onPressed: () {
                 Navigator.of(context).pop();
                 if (title == 'Success') {
-                  // Navigate to the home page after successful login
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MyHomePage(),
-                    ),
-                  );
+                  // Navigate to the appropriate page after successful login
+                  if (isAdmin) {
+                    // Navigate to admin page
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TeacherHome(),
+                      ),
+                    );
+                  } else {
+                    // Navigate to regular user page
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MyHomePage(),
+                      ),
+                    );
+                  }
                 }
               },
             ),

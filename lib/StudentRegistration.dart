@@ -5,14 +5,14 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:student_attdence/barcodegenarater.dart';
 import 'package:student_attdence/database.dart';
 
-class HomePage extends StatefulWidget {
-  HomePage({super.key});
+class StuReg extends StatefulWidget {
+  StuReg({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<StuReg> createState() => _StuRegState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _StuRegState extends State<StuReg> {
   uploadData() async {
     Map<String, dynamic> uploadData = {
       "name": _nameController.text,

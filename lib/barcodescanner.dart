@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:student_attdence/ViewCourses.dart';
-import 'newhome.dart';
+import 'Home Page/newhome.dart';
 
 class Barcodescanner extends StatefulWidget {
   final String courseName;

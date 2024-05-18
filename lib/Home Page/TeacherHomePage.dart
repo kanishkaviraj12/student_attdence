@@ -2,26 +2,20 @@
 
 import 'package:flutter/material.dart';
 import 'package:student_attdence/AddCourses.dart';
-import 'package:student_attdence/AddStudentForCourses.dart';
 import 'package:student_attdence/AttendanceReport.dart';
-import 'package:student_attdence/ViewTeachers.dart';
-import 'package:student_attdence/home.dart';
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({super.key});
+class TeacherHome extends StatefulWidget {
+  TeacherHome({super.key});
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _TeacherHomeState createState() => _TeacherHomeState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _TeacherHomeState extends State<TeacherHome> {
   int _selectedIndex = 0;
   static final List<Widget> _widgetOptions = <Widget>[
-    ViewTeachers(),
     AddCourses(),
-    HomePage(),
     Report(),
-    AddStudent(),
   ];
 
   void _onItemTapped(int index) {
@@ -43,24 +37,12 @@ class _MyHomePageState extends State<MyHomePage> {
         type: BottomNavigationBarType.fixed,
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.book_rounded),
             label: 'Add Courses',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.app_registration_rounded),
-            label: 'Register',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.repartition_rounded),
             label: 'Attendace report',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_2_outlined),
-            label: 'Add Student',
           ),
         ],
         currentIndex: _selectedIndex,
