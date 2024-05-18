@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously, prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -115,7 +113,7 @@ class _BarcodescannerState extends State<Barcodescanner> {
           context: context,
           builder: (context) => AlertDialog(
             title: Text('Error'),
-            content: Text('This student not Registered for this course.'),
+            content: Text('This student is not registered for this course.'),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
@@ -129,9 +127,18 @@ class _BarcodescannerState extends State<Barcodescanner> {
         return;
       }
 
-      // Check if attendance record already exists for this barcode
-      DocumentSnapshot attendanceSnapshot =
-          await _firestore.collection('Attendance').doc(scannedBarcode).get();
+      // Reference to the attendance sub-collection for the specific course
+      CollectionReference attendanceCollectionRef = _firestore
+          .collection('Attendance')
+          .doc(widget.courseName)
+          .collection('Students RegNo');
+
+      // Reference to the specific student's attendance document within the sub-collection
+      DocumentReference attendanceDocRef =
+          attendanceCollectionRef.doc(scannedBarcode);
+
+      // Check if the attendance record already exists for this barcode
+      DocumentSnapshot attendanceSnapshot = await attendanceDocRef.get();
 
       if (attendanceSnapshot.exists) {
         // Attendance record already exists, check if already marked as present
@@ -147,7 +154,6 @@ class _BarcodescannerState extends State<Barcodescanner> {
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
-                    // Navigator.of(context).pop();
                     Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(
                         builder: (BuildContext context) =>
@@ -164,7 +170,7 @@ class _BarcodescannerState extends State<Barcodescanner> {
           return;
         } else {
           // Update the existing record to mark attendance as present
-          await _firestore.collection('Attendance').doc(scannedBarcode).update({
+          await attendanceDocRef.update({
             'scannedTime': currentDate,
             'attendanceStatus': 'Present',
           });
@@ -179,11 +185,8 @@ class _BarcodescannerState extends State<Barcodescanner> {
           'attendanceStatus': 'Present',
         };
 
-        // Save the attendance record to Firestore with student registration number as document ID
-        await _firestore
-            .collection('Attendance')
-            .doc(scannedBarcode)
-            .set(attendanceRecord);
+        // Save the attendance record to the sub-collection within the course document
+        await attendanceDocRef.set(attendanceRecord);
       }
 
       // Show success message

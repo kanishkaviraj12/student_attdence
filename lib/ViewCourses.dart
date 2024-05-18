@@ -17,7 +17,7 @@ class _ViewCoursesState extends State<ViewCourses> {
   List<String> courses = [];
   Map<String, List<String>> courseStudents = {};
   late Timer _timer;
-  int _totalSeconds = (0 * 60 * 60) + (0 * 60) + 10; // 10 seconds for example
+  int _totalSeconds = 10; // For example, 10 seconds
   int _secondsRemaining = 0;
 
   @override
@@ -39,7 +39,7 @@ class _ViewCoursesState extends State<ViewCourses> {
     _timer = Timer.periodic(oneSecond, (Timer timer) {
       if (_secondsRemaining == 0) {
         timer.cancel();
-        markAbsentStudents(); // Mark students as absent
+        markAbsentStudents();
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -90,7 +90,7 @@ class _ViewCoursesState extends State<ViewCourses> {
   }
 
   Future<void> markAbsentStudents() async {
-    String currentDate = DateTime.now().toString();
+    String currentDate = DateTime.now().toIso8601String();
 
     for (String course in courses) {
       List<String>? students = courseStudents[course];
@@ -99,6 +99,8 @@ class _ViewCoursesState extends State<ViewCourses> {
         for (String student in students) {
           DocumentSnapshot attendanceSnapshot = await FirebaseFirestore.instance
               .collection('Attendance')
+              .doc(course)
+              .collection('Students RegNo')
               .doc(student)
               .get();
 
@@ -107,6 +109,8 @@ class _ViewCoursesState extends State<ViewCourses> {
             // Mark the student as absent if no attendance record exists or if not marked as present
             await FirebaseFirestore.instance
                 .collection('Attendance')
+                .doc(course)
+                .collection('Students RegNo')
                 .doc(student)
                 .set({
               'date': currentDate,
