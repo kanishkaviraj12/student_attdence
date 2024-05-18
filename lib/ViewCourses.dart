@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:student_attdence/Home%20Page/newhome.dart';
+import 'package:student_attdence/Home%20Page/OperaterHome.dart';
 import 'barcodescanner.dart';
 
 class ViewCourses extends StatefulWidget {

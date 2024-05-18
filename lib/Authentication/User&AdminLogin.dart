@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:student_attdence/StudentRegistration.dart';
-import 'package:student_attdence/Home%20Page/TeacherHomePage.dart';
-import 'package:student_attdence/Home%20Page/newhome.dart';
+import 'package:student_attdence/Home%20Page/AdminHomePage.dart';
+import 'package:student_attdence/Home%20Page/OperaterHome.dart';
 
 class LoginPage extends StatelessWidget {
   @override

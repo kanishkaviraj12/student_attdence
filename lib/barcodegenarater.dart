@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, non_constant_identifier_names, use_build_context_synchronously, prefer_const_constructors_in_immutables
+// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors_in_immutables, library_private_types_in_public_api, prefer_const_constructors, use_build_context_synchronously, avoid_print
 
 import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -9,28 +9,24 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:syncfusion_flutter_barcodes/barcodes.dart';
 
 class BarcodeGenerator extends StatefulWidget {
+  final String name;
+  final String email;
+  final String website;
+  final String regNo;
+
   BarcodeGenerator({
-    super.key,
     required this.name,
     required this.email,
     required this.website,
     required this.regNo,
   });
 
-  final String name;
-  final String email;
-  final String website;
-  final String regNo;
-
   @override
-  State<BarcodeGenerator> createState() => _BarcodeGeneratorState();
+  _BarcodeGeneratorState createState() => _BarcodeGeneratorState();
 }
 
 class _BarcodeGeneratorState extends State<BarcodeGenerator> {
   final ScreenshotController screenshotController = ScreenshotController();
-
-  Uint8List? imageBytes; // Declare imageBytes as an instance variable
-  String? imageName; // Declare imageName as an instance variable
 
   String generateBarcodeData() {
     return widget.regNo;
@@ -43,13 +39,8 @@ class _BarcodeGeneratorState extends State<BarcodeGenerator> {
       final PermissionStatus status = await Permission.storage.request();
       if (status.isGranted) {
         try {
-          // Generate a unique filename including user's name
           String imageName = generateUniqueFileName(widget.name);
-
-          // Upload the image to Firebase Cloud Storage
           await uploadScreenshot(uint8list, imageName);
-
-          // Show success message
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Image uploaded to Firebase Storage'),
@@ -57,7 +48,6 @@ class _BarcodeGeneratorState extends State<BarcodeGenerator> {
             ),
           );
         } catch (e) {
-          // Show error message if failed to upload image
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Failed to upload image: $e'),
@@ -65,8 +55,6 @@ class _BarcodeGeneratorState extends State<BarcodeGenerator> {
             ),
           );
         }
-
-        //saved images to gallery
         final result = await ImageGallerySaver.saveImage(uint8list);
         if (result['isSuccess']) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -84,7 +72,6 @@ class _BarcodeGeneratorState extends State<BarcodeGenerator> {
           );
         }
       } else {
-        // Show error message if permission denied
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Permission to access storage denied'),
@@ -103,22 +90,19 @@ class _BarcodeGeneratorState extends State<BarcodeGenerator> {
       print('Image uploaded to Firebase Storage.');
     } catch (e) {
       print('Error uploading image to Firebase Storage: $e');
-      rethrow; // Rethrow the error to handle it in the calling function
+      rethrow;
     }
   }
 
   String generateUniqueFileName(String name) {
     String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    // Extract only the first 10 characters of the timestamp to exclude milliseconds
-    String truncatedTimestamp = timestamp.substring(0, 0);
+    String truncatedTimestamp = timestamp.substring(0, 10);
     return '$name $truncatedTimestamp.jpg';
   }
 
-  //Above coding is UI part of this page
   @override
   Widget build(BuildContext context) {
     String barcodeData = generateBarcodeData();
-    print(barcodeData);
     return Scaffold(
       appBar: AppBar(
         title: Text("Barcode Generator"),
@@ -129,23 +113,23 @@ class _BarcodeGeneratorState extends State<BarcodeGenerator> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Screenshot(
-                controller: screenshotController,
-                child: SizedBox(
-                  height: 200,
-                  width: 400,
-                  child: SfBarcodeGenerator(
-                    value: barcodeData,
-                    symbology: Code128(),
-                    showValue: false,
-                    backgroundColor: Colors.white,
-                  ),
-                )),
+              controller: screenshotController,
+              child: SizedBox(
+                height: 200,
+                width: 400,
+                child: SfBarcodeGenerator(
+                  value: barcodeData,
+                  symbology: Code128(),
+                  showValue: false,
+                  backgroundColor: Colors.white,
+                ),
+              ),
+            ),
             SizedBox(height: 20.0),
             Text("Scan Barcode"),
             ElevatedButton(
               onPressed: () async {
                 await captureAndSaveImage(context);
-                await uploadScreenshot(imageBytes!, imageName!);
               },
               child: Text("Capture and save as image"),
             )

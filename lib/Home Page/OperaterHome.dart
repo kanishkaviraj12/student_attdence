@@ -1,9 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_constructors_in_immutables, library_private_types_in_public_api, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
-import 'package:student_attdence/AddCourses.dart';
 import 'package:student_attdence/AddStudentForCourses.dart';
-import 'package:student_attdence/AttendanceReport.dart';
 import 'package:student_attdence/ViewTeachers.dart';
 import 'package:student_attdence/StudentRegistration.dart';
 
@@ -19,7 +17,6 @@ class _MyHomePageState extends State<MyHomePage> {
   static final List<Widget> _widgetOptions = <Widget>[
     ViewTeachers(),
     StuReg(),
-    AddCourses(),
     AddStudent(),
   ];
 
@@ -48,10 +45,6 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.app_registration_rounded),
             label: 'Register',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book_rounded),
-            label: 'Add Courses',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_2_outlined),
