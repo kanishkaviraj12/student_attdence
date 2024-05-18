@@ -15,7 +15,7 @@ class _TeacherHomeState extends State<TeacherHome> {
   int _selectedIndex = 0;
   static final List<Widget> _widgetOptions = <Widget>[
     AddCourses(),
-    Report(),
+    AttendanceReport(),
   ];
 
   void _onItemTapped(int index) {
