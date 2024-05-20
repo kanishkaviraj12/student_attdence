@@ -15,7 +15,8 @@ class _AddStudentState extends State<AddStudent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Search Student'),
+        title: Text('Search Student', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.teal, // Use registration page color
       ),
       body: Column(
         children: [
@@ -24,16 +25,26 @@ class _AddStudentState extends State<AddStudent> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      labelText: 'Enter Registration Number',
+                  child: Container(
+                    height: 45,
+                    child: TextField(
+                      controller: searchController,
+                      decoration: InputDecoration(
+                        labelText: 'Enter Registration Number',
+                        filled: true,
+                        fillColor:
+                            Colors.teal.shade50, // Use registration page color
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(70.0),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          searchTerm = value;
+                        });
+                      },
                     ),
-                    onChanged: (value) {
-                      setState(() {
-                        searchTerm = value;
-                      });
-                    },
                   ),
                 ),
                 SizedBox(width: 10),
@@ -45,6 +56,11 @@ class _AddStudentState extends State<AddStudent> {
                     });
                   },
                   child: Text('Search'),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.teal,
+                      foregroundColor:
+                          Colors.white // Use registration page color
+                      ),
                 ),
               ],
             ),
@@ -110,7 +126,10 @@ class _AddStudentState extends State<AddStudent> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('Select Courses'),
+              title: Text(
+                'Select Courses',
+                style: TextStyle(color: Colors.teal),
+              ),
               content: Container(
                 width: double.maxFinite,
                 child: StreamBuilder(
@@ -165,7 +184,10 @@ class _AddStudentState extends State<AddStudent> {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: Text('Cancel'),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.red),
+                  ),
                 ),
                 TextButton(
                   onPressed: () {
@@ -182,17 +204,50 @@ class _AddStudentState extends State<AddStudent> {
                         selectedCourses.clear(); // Clear selections
                       });
                       Navigator.pop(context); // Go back to previous screen
+                      _showConfirmationMessage(
+                          context); // Show confirmation message
                     }).catchError((error) {
                       // Handle error if any
                       print("Failed to save courses: $error");
                       // You can show a snackbar or dialog to inform the user
                     });
                   },
-                  child: Text('Save'),
+                  child: Text(
+                    'Save',
+                    style: TextStyle(color: Colors.teal),
+                  ),
                 ),
               ],
             );
           },
+        );
+      },
+    );
+  }
+
+  void _showConfirmationMessage(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Courses Saved',
+            style: TextStyle(color: Colors.teal),
+          ),
+          content: Text(
+            'Selected courses have been saved successfully!',
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'OK',
+                style: TextStyle(color: Colors.teal),
+              ),
+            ),
+          ],
         );
       },
     );

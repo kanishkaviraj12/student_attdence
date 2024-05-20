@@ -11,13 +11,15 @@ import 'package:syncfusion_flutter_barcodes/barcodes.dart';
 class BarcodeGenerator extends StatefulWidget {
   final String name;
   final String email;
-  final String website;
+  final String Address;
+  final String Mobile;
   final String regNo;
 
   BarcodeGenerator({
     required this.name,
     required this.email,
-    required this.website,
+    required this.Address,
+    required this.Mobile,
     required this.regNo,
   });
 
