@@ -1,3 +1,5 @@
+// ignore_for_file: use_key_in_widget_constructors, file_names, library_private_types_in_public_api, prefer_const_constructors, sort_child_properties_last, avoid_print, sized_box_for_whitespace
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
