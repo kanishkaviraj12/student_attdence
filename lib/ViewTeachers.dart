@@ -58,7 +58,7 @@ class ViewTeachers extends StatelessWidget {
               .toList();
 
           return Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: EdgeInsets.all(20.0),
             child: GridView.count(
               crossAxisCount: 1,
               childAspectRatio: 3.0,
