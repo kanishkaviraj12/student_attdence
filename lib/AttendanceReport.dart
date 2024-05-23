@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, avoid_function_literals_in_foreach_calls, library_private_types_in_public_api, use_key_in_widget_constructors
+// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, use_super_parameters, prefer_const_constructors_in_immutables, file_names
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -40,43 +40,80 @@ class _AttendanceReportState extends State<AttendanceReport> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Attendance Report'),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: "Attendance Report",
+      theme: ThemeData(
+        primarySwatch: Colors.teal,
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.teal.shade50,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding:
+              EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.teal,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            padding: EdgeInsets.symmetric(vertical: 15.0),
+          ),
+        ),
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _attendanceData,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No attendance data available'));
-          } else {
-            Map<String, List<Map<String, dynamic>>> groupedData =
-                _groupData(snapshot.data!);
+      home: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.teal,
+          title: Text(
+            "Attendance Report",
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+          centerTitle: true,
+        ),
+        body: Center(
+          child: Padding(
+            padding: EdgeInsets.all(20.0),
+            child: FutureBuilder<List<Map<String, dynamic>>>(
+              future: _attendanceData,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(child: Text('No attendance data available'));
+                } else {
+                  Map<String, List<Map<String, dynamic>>> groupedData =
+                      _groupData(snapshot.data!);
 
-            return SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  columnSpacing: 20,
-                  columns: [
-                    DataColumn(label: Text('Course Name')),
-                    DataColumn(label: Text('Student RegNo')),
-                    DataColumn(label: Text('Attendance Status')),
-                    DataColumn(label: Text('Date')),
-                    DataColumn(label: Text('Teacher Name')),
-                    DataColumn(label: Text('Scanned Time')),
-                  ],
-                  rows: _buildDataRows(groupedData),
-                ),
-              ),
-            );
-          }
-        },
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columnSpacing: 20,
+                        columns: [
+                          DataColumn(label: Text('Course Name')),
+                          DataColumn(label: Text('Student RegNo')),
+                          DataColumn(label: Text('Attendance Status')),
+                          DataColumn(label: Text('Date')),
+                          DataColumn(label: Text('Teacher Name')),
+                          DataColumn(label: Text('Scanned Time')),
+                        ],
+                        rows: _buildDataRows(groupedData),
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
+          ),
+        ),
       ),
     );
   }

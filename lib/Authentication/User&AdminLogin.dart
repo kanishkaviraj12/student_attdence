@@ -177,7 +177,7 @@ class _LoginFormState extends State<LoginForm> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => TeacherHome(),
+                        builder: (context) => AdminHome(),
                       ),
                     );
                   } else {
