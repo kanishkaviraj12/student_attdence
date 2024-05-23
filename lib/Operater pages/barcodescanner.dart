@@ -1,3 +1,5 @@
+// ignore_for_file: use_super_parameters, prefer_const_constructors_in_immutables
+
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,7 +10,7 @@ class Barcodescanner extends StatefulWidget {
   final String courseName;
   final String teacherName;
 
-  const Barcodescanner(
+  Barcodescanner(
       {Key? key, required this.courseName, required this.teacherName})
       : super(key: key);
 

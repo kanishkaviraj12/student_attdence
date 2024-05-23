@@ -155,7 +155,7 @@ class _ViewCoursesState extends State<ViewCourses> {
         backgroundColor: Colors.teal,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         child: ListView.builder(
           itemCount: courses.length,
           itemBuilder: (BuildContext context, int index) {
@@ -242,7 +242,7 @@ class _ViewCoursesState extends State<ViewCourses> {
       bottomNavigationBar: BottomAppBar(
         color: Colors.teal,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

@@ -1,9 +1,11 @@
+// ignore_for_file: prefer_const_constructors_in_immutables, file_names, prefer_const_constructors
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class AddCourses extends StatefulWidget {
-  const AddCourses({super.key});
+  AddCourses({super.key});
 
   @override
   State<AddCourses> createState() => _AddCoursesState();
@@ -92,7 +94,7 @@ class _AddCoursesState extends State<AddCourses> {
                   children: [
                     Text(
                       'Enter Course Details',
-                      style: Theme.of(context).textTheme.headline5,
+                      style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     SizedBox(height: 20.0),
                     TextFormField(

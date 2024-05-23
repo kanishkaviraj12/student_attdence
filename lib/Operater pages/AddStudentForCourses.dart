@@ -26,7 +26,7 @@ class _AddStudentState extends State<AddStudent> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: EdgeInsets.all(20.0),
             child: Row(
               children: [
                 Expanded(
