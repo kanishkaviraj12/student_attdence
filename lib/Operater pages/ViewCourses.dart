@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:student_attdence/Home%20Page/OperaterHome.dart';
 import 'dart:async';
 
-import 'package:student_attdence/barcodescanner.dart';
+import 'package:student_attdence/Operater%20pages/barcodescanner.dart';
 
 class ViewCourses extends StatefulWidget {
   final String teacherName;

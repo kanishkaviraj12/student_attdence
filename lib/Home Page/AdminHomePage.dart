@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:student_attdence/AddCourses.dart';
-import 'package:student_attdence/AttendanceReport.dart';
+import 'package:student_attdence/Admin%20Pages/AddCourses.dart';
+import 'package:student_attdence/Admin%20Pages/AttendanceReport.dart';
 
 class AdminHome extends StatefulWidget {
   AdminHome({super.key});

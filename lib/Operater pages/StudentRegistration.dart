@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:student_attdence/barcodegenarater.dart';
+import 'package:student_attdence/Operater%20pages/barcodegenarater.dart';
 import 'package:student_attdence/database.dart';
 
 class StuReg extends StatefulWidget {

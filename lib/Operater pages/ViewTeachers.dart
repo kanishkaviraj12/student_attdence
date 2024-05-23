@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:student_attdence/ViewCourses.dart';
+import 'package:student_attdence/Operater%20pages/ViewCourses.dart';
 
 class ViewTeachers extends StatelessWidget {
   @override

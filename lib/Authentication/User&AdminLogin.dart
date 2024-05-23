@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:student_attdence/StudentRegistration.dart';
+import 'package:student_attdence/Operater%20pages/StudentRegistration.dart';
 import 'package:student_attdence/Home%20Page/AdminHomePage.dart';
 import 'package:student_attdence/Home%20Page/OperaterHome.dart';
 
