@@ -1,8 +1,11 @@
-import 'dart:async';
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:student_attdence/Home%20Page/OperaterHome.dart';
-import 'barcodescanner.dart';
+import 'dart:async';
+
+import 'package:student_attdence/barcodescanner.dart';
 
 class ViewCourses extends StatefulWidget {
   final String teacherName;
@@ -141,96 +144,118 @@ class _ViewCoursesState extends State<ViewCourses> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Courses by ${widget.teacherName}'),
+        title: Text(
+          'Courses by ${widget.teacherName}',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.teal,
       ),
-      body: ListView.builder(
-        itemCount: courses.length,
-        itemBuilder: (BuildContext context, int index) {
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Barcodescanner(
-                    courseName: courses[index],
-                    teacherName: widget.teacherName,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView.builder(
+          itemCount: courses.length,
+          itemBuilder: (BuildContext context, int index) {
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Barcodescanner(
+                      courseName: courses[index],
+                      teacherName: widget.teacherName,
+                    ),
                   ),
-                ),
-              );
-            },
-            child: FutureBuilder<QuerySnapshot>(
-              future: FirebaseFirestore.instance
-                  .collection('Add Student for courses')
-                  .where('courses', arrayContains: courses[index])
-                  .get(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  //return CircularProgressIndicator();
-                }
-                if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                }
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return ListTile(
-                    title: Text(courses[index]),
-                    subtitle: Text('No students registered for this course'),
-                  );
-                }
+                );
+              },
+              child: FutureBuilder<QuerySnapshot>(
+                future: FirebaseFirestore.instance
+                    .collection('Add Student for courses')
+                    .where('courses', arrayContains: courses[index])
+                    .get(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    //return CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return ListTile(
+                      title: Text(courses[index]),
+                      subtitle: Text('No students registered for this course'),
+                    );
+                  }
 
-                List<String> studentRegNos =
-                    snapshot.data!.docs.map((doc) => doc.id).toList();
+                  List<String> studentRegNos =
+                      snapshot.data!.docs.map((doc) => doc.id).toList();
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ListTile(
+                  return Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.teal.shade300,
+                          Colors.teal.shade100,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    margin: EdgeInsets.symmetric(vertical: 10),
+                    child: ListTile(
                       title: Text(
                         courses[index],
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Colors.white,
+                        ),
                       ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: studentRegNos
-                            .map((regNo) => Text('Student RegNo: $regNo'))
+                            .map((regNo) => Text(
+                                  'Student RegNo: $regNo',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.normal,
+                                    color: Color.fromARGB(255, 54, 54, 54),
+                                  ),
+                                ))
                             .toList(),
                       ),
+                      trailing: Icon(Icons.arrow_forward,
+                          color: Color.fromARGB(255, 0, 17, 255)),
                     ),
-                    Divider(),
-                  ],
-                );
-              },
-            ),
-          );
-        },
+                  );
+                },
+              ),
+            );
+          },
+        ),
       ),
       bottomNavigationBar: BottomAppBar(
+        color: Colors.teal,
         child: Padding(
-          padding: EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(16.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 'Countdown: ${getHours()}:${getMinutes()}:${getSeconds()}',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class TimeoutPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Timeout Page'),
-      ),
-      body: Center(
-        child: Text('Timeout reached!'),
       ),
     );
   }

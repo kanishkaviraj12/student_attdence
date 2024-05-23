@@ -17,8 +17,11 @@ class _AddStudentState extends State<AddStudent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Search Student', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.teal, // Use registration page color
+        title: Text('Search Student',
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: Colors.teal,
+        automaticallyImplyLeading: false, //remove backbutton
+        centerTitle: true,
       ),
       body: Column(
         children: [

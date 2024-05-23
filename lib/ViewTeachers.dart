@@ -20,6 +20,7 @@ class ViewTeachers extends StatelessWidget {
         backgroundColor: Colors.teal,
         elevation: 4.0,
         centerTitle: true,
+        automaticallyImplyLeading: false, //remove backbutton
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('courses').snapshots(),

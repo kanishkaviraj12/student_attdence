@@ -82,8 +82,9 @@ class _StuRegState extends State<StuReg> {
           backgroundColor: Colors.teal,
           title: Text(
             "Student Registration",
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
           ),
+          centerTitle: true,
         ),
         body: Center(
           child: SingleChildScrollView(
