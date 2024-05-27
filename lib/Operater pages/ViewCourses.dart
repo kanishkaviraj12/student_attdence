@@ -1,4 +1,4 @@
-// ignore_for_file: use_super_parameters, prefer_const_constructors_in_immutables, prefer_const_constructors
+// ignore_for_file: use_super_parameters, prefer_const_constructors_in_immutables, prefer_const_constructors, avoid_print, unnecessary_brace_in_string_interps, prefer_final_fields, file_names
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

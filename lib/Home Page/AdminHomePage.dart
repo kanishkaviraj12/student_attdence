@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors_in_immutables, file_names, library_private_types_in_public_api, prefer_const_literals_to_create_immutables, prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:student_attdence/Admin%20Pages/AddCourses.dart';
 import 'package:student_attdence/Admin%20Pages/AttendanceReport.dart';
