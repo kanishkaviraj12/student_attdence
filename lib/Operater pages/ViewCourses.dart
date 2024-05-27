@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: use_super_parameters, prefer_const_constructors_in_immutables, prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,7 +17,7 @@ class ViewCourses extends StatefulWidget {
 }
 
 class _ViewCoursesState extends State<ViewCourses> {
-  List<String> courses = [];
+  List<Map<String, dynamic>> courses = [];
   Map<String, List<String>> courseStudents = {};
   late Timer _timer;
   int _totalSeconds = 10; // For example, 10 seconds
@@ -66,25 +66,29 @@ class _ViewCoursesState extends State<ViewCourses> {
           .where('instructor', isEqualTo: widget.teacherName)
           .get();
 
-      List<String> fetchedCourses =
-          querySnapshot.docs.map((doc) => doc['courseName'] as String).toList();
+      List<Map<String, dynamic>> fetchedCourses = querySnapshot.docs.map((doc) {
+        return {
+          'courseName': doc['courseName'] as String,
+          'fee': doc['fee'] as int
+        };
+      }).toList();
 
       setState(() {
         courses = fetchedCourses;
       });
 
       // Fetch students for each course
-      for (String course in fetchedCourses) {
+      for (var course in fetchedCourses) {
         QuerySnapshot studentSnapshot = await FirebaseFirestore.instance
             .collection('Add Student for courses')
-            .where('courses', arrayContains: course)
+            .where('courses', arrayContains: course['courseName'])
             .get();
 
         List<String> studentRegNos =
             studentSnapshot.docs.map((doc) => doc.id).toList();
 
         setState(() {
-          courseStudents[course] = studentRegNos;
+          courseStudents[course['courseName']] = studentRegNos;
         });
       }
     } catch (error) {
@@ -93,34 +97,41 @@ class _ViewCoursesState extends State<ViewCourses> {
   }
 
   Future<void> markAbsentStudents() async {
-    String currentDate = DateTime.now().toIso8601String();
+    String currentDay =
+        'day${DateTime.now().day}'; // Automatically set current day, e.g., 'day27'
 
-    for (String course in courses) {
-      List<String>? students = courseStudents[course];
+    for (var course in courses) {
+      String courseName = course['courseName'];
+      List<String>? students = courseStudents[courseName];
 
       if (students != null) {
         for (String student in students) {
           DocumentSnapshot attendanceSnapshot = await FirebaseFirestore.instance
               .collection('Attendance')
-              .doc(course)
+              .doc(courseName)
               .collection('Students RegNo')
               .doc(student)
               .get();
 
-          if (!attendanceSnapshot.exists ||
-              attendanceSnapshot.get('attendanceStatus') != 'Present') {
-            // Mark the student as absent if no attendance record exists or if not marked as present
+          // Safely cast the data to a Map<String, dynamic>
+          final data = attendanceSnapshot.data() as Map<String, dynamic>?;
+
+          if (data == null ||
+              !data.containsKey(currentDay) ||
+              data[currentDay]['attendanceStatus'] != 'Present') {
+            // Mark the student as absent if no attendance record exists for the specific day or if not marked as present
             await FirebaseFirestore.instance
                 .collection('Attendance')
-                .doc(course)
+                .doc(courseName)
                 .collection('Students RegNo')
                 .doc(student)
                 .set({
-              'date': currentDate,
-              'courseName': course,
+              currentDay: {
+                'scannedTime': '',
+                'attendanceStatus': 'Absent',
+              },
+              'courseName': courseName,
               'teacherName': widget.teacherName,
-              'scannedTime': '',
-              'attendanceStatus': 'Absent',
             }, SetOptions(merge: true));
           }
         }
@@ -159,13 +170,16 @@ class _ViewCoursesState extends State<ViewCourses> {
         child: ListView.builder(
           itemCount: courses.length,
           itemBuilder: (BuildContext context, int index) {
+            String courseName = courses[index]['courseName'];
+            int fee = courses[index]['fee'];
             return GestureDetector(
               onTap: () {
+                _timer.cancel(); // Stop the timer
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => Barcodescanner(
-                      courseName: courses[index],
+                      courseName: courseName,
                       teacherName: widget.teacherName,
                     ),
                   ),
@@ -174,7 +188,7 @@ class _ViewCoursesState extends State<ViewCourses> {
               child: FutureBuilder<QuerySnapshot>(
                 future: FirebaseFirestore.instance
                     .collection('Add Student for courses')
-                    .where('courses', arrayContains: courses[index])
+                    .where('courses', arrayContains: courseName)
                     .get(),
                 builder: (BuildContext context,
                     AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -186,8 +200,9 @@ class _ViewCoursesState extends State<ViewCourses> {
                   }
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return ListTile(
-                      title: Text(courses[index]),
+                      title: Text(courseName),
                       subtitle: Text('No students registered for this course'),
+                      trailing: Text('Fee: \$${fee}'),
                     );
                   }
 
@@ -209,7 +224,7 @@ class _ViewCoursesState extends State<ViewCourses> {
                     margin: EdgeInsets.symmetric(vertical: 10),
                     child: ListTile(
                       title: Text(
-                        courses[index],
+                        courseName,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
@@ -218,16 +233,24 @@ class _ViewCoursesState extends State<ViewCourses> {
                       ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: studentRegNos
-                            .map((regNo) => Text(
-                                  'Student RegNo: $regNo',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.normal,
-                                    color: Color.fromARGB(255, 54, 54, 54),
-                                  ),
-                                ))
-                            .toList(),
+                        children: [
+                          ...studentRegNos.map((regNo) => Text(
+                                'Student RegNo: $regNo',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.normal,
+                                  color: Color.fromARGB(255, 54, 54, 54),
+                                ),
+                              )),
+                          Text(
+                            'Fee: \$${fee}',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(255, 54, 54, 54),
+                            ),
+                          ),
+                        ],
                       ),
                       trailing: Icon(Icons.arrow_forward,
                           color: Color.fromARGB(255, 0, 17, 255)),

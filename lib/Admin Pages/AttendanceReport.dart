@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, use_super_parameters, prefer_const_constructors_in_immutables, file_names
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -25,11 +23,23 @@ class _AttendanceReportState extends State<AttendanceReport> {
 
       List<Map<String, dynamic>> attendanceList = [];
 
-      querySnapshot.docs.forEach((document) {
+      for (var document in querySnapshot.docs) {
         Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-        data['studentRegNo'] = document.id; // Include registration number
-        attendanceList.add(data);
-      });
+        data['studentRegNo'] =
+            document.id.toString(); // Convert DocumentID to String
+
+        // Extract and flatten daily attendance records
+        for (String key in data.keys) {
+          if (key.startsWith('day')) {
+            Map<String, dynamic> dailyData = data[key] as Map<String, dynamic>;
+            dailyData['courseName'] = data['courseName'] ?? 'Unknown Course';
+            dailyData['teacherName'] = data['teacherName'] ?? 'Unknown';
+            dailyData['studentRegNo'] = data['studentRegNo'];
+            dailyData['date'] = key; // Use the key (e.g., 'day27') as the date
+            attendanceList.add(dailyData);
+          }
+        }
+      }
 
       return attendanceList;
     } catch (error) {
@@ -75,103 +85,106 @@ class _AttendanceReportState extends State<AttendanceReport> {
           ),
           centerTitle: true,
         ),
-        body: Center(
-          child: Padding(
-            padding: EdgeInsets.all(20.0),
-            child: FutureBuilder<List<Map<String, dynamic>>>(
-              future: _attendanceData,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text('No attendance data available'));
-                } else {
-                  Map<String, List<Map<String, dynamic>>> groupedData =
-                      _groupData(snapshot.data!);
+        body: FutureBuilder<List<Map<String, dynamic>>>(
+          future: _attendanceData,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(child: Text('No attendance data available'));
+            } else {
+              Map<String, Map<String, List<Map<String, dynamic>>>> groupedData =
+                  _groupData(snapshot.data!);
 
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DataTable(
-                        columnSpacing: 20,
-                        columns: [
-                          DataColumn(label: Text('Course Name')),
-                          DataColumn(label: Text('Student RegNo')),
-                          DataColumn(label: Text('Attendance Status')),
-                          DataColumn(label: Text('Date')),
-                          DataColumn(label: Text('Teacher Name')),
-                          DataColumn(label: Text('Scanned Time')),
-                        ],
-                        rows: _buildDataRows(groupedData),
-                      ),
-                    ),
-                  );
-                }
-              },
-            ),
-          ),
+              return SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    columnSpacing: 20,
+                    columns: [
+                      DataColumn(label: Text('Course Name')),
+                      DataColumn(label: Text('Student RegNo')),
+                      DataColumn(label: Text('Attendance Status')),
+                      DataColumn(label: Text('Date')),
+                      DataColumn(label: Text('Teacher Name')),
+                      DataColumn(label: Text('Scanned Time')),
+                    ],
+                    rows: _buildDataRows(groupedData),
+                  ),
+                ),
+              );
+            }
+          },
         ),
       ),
     );
   }
 
-  Map<String, List<Map<String, dynamic>>> _groupData(
+  // Group data by courseName and studentRegNo
+  Map<String, Map<String, List<Map<String, dynamic>>>> _groupData(
       List<Map<String, dynamic>> data) {
-    Map<String, List<Map<String, dynamic>>> groupedData = {};
+    Map<String, Map<String, List<Map<String, dynamic>>>> groupedData = {};
 
-    data.forEach((attendance) {
-      String courseName = attendance['courseName'];
+    for (var attendance in data) {
+      String courseName = attendance['courseName'] ?? 'Unknown Course';
+      String studentRegNo = attendance['studentRegNo'] ?? 'Unknown';
+
       if (!groupedData.containsKey(courseName)) {
-        groupedData[courseName] = [];
+        groupedData[courseName] = {};
       }
-      groupedData[courseName]!.add(attendance);
-    });
+      if (!groupedData[courseName]!.containsKey(studentRegNo)) {
+        groupedData[courseName]![studentRegNo] = [];
+      }
+      groupedData[courseName]![studentRegNo]!.add(attendance);
+    }
 
     return groupedData;
   }
 
   List<DataRow> _buildDataRows(
-      Map<String, List<Map<String, dynamic>>> groupedData) {
+      Map<String, Map<String, List<Map<String, dynamic>>>> groupedData) {
     List<DataRow> rows = [];
 
-    groupedData.forEach((courseName, attendances) {
-      // Display course name only in the first row
-      bool isFirstRow = true;
-      attendances.forEach((attendance) {
-        // Determine font color based on attendance status
-        Color textColor = attendance['attendanceStatus'] == 'Present'
-            ? Colors.green
-            : Colors.red;
+    groupedData.forEach((courseName, studentMap) {
+      bool isFirstCourseRow = true;
 
-        rows.add(DataRow(cells: [
-          isFirstRow
-              ? DataCell(
-                  Text(courseName,
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                )
-              : DataCell(Text('')),
-          DataCell(
-            Text(attendance['studentRegNo'],
-                style: TextStyle(color: textColor)),
-          ),
-          DataCell(
-            Text(attendance['attendanceStatus'],
-                style: TextStyle(color: textColor)),
-          ),
-          DataCell(
-            Text(attendance['date'], style: TextStyle(color: textColor)),
-          ),
-          DataCell(
-            Text(attendance['teacherName'], style: TextStyle(color: textColor)),
-          ),
-          DataCell(
-            Text(attendance['scannedTime'], style: TextStyle(color: textColor)),
-          ),
-        ]));
-        isFirstRow = false;
+      studentMap.forEach((studentRegNo, attendances) {
+        bool isFirstStudentRow = true;
+
+        for (var attendance in attendances) {
+          String attendanceStatus = attendance['attendanceStatus'] ?? 'Unknown';
+          String date = attendance['date'] ?? 'Unknown';
+          String teacherName = attendance['teacherName'] ?? 'Unknown';
+          String scannedTime = attendance['scannedTime'] ?? 'Unknown';
+
+          Color? textColor;
+          if (attendanceStatus == 'Present') {
+            textColor = Colors.green;
+          } else if (attendanceStatus == 'Absent') {
+            textColor = Colors.red;
+          }
+
+          rows.add(DataRow(cells: [
+            isFirstCourseRow
+                ? DataCell(Text(courseName,
+                    style: TextStyle(fontWeight: FontWeight.bold)))
+                : DataCell(Text('')),
+            isFirstStudentRow
+                ? DataCell(Text(studentRegNo))
+                : DataCell(Text('')),
+            DataCell(Text(attendanceStatus,
+                style: textColor != null ? TextStyle(color: textColor) : null)),
+            DataCell(Text(date)),
+            DataCell(Text(teacherName)),
+            DataCell(Text(scannedTime)),
+          ]));
+
+          isFirstCourseRow = false;
+          isFirstStudentRow = false;
+        }
       });
     });
 

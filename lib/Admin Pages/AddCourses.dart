@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors_in_immutables, file_names, prefer_const_constructors
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -14,17 +12,20 @@ class AddCourses extends StatefulWidget {
 class _AddCoursesState extends State<AddCourses> {
   final TextEditingController _courseNameController = TextEditingController();
   final TextEditingController _instructorController = TextEditingController();
+  final TextEditingController _feeController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
 
   Future<void> saveCourseToFirestore({
     required String courseName,
     required String instructor,
+    required int fee,
   }) async {
     try {
       await FirebaseFirestore.instance.collection('courses').add({
         'courseName': courseName,
         'instructor': instructor,
+        'fee': fee,
       });
       Fluttertoast.showToast(
           msg: "Course added successfully",
@@ -124,6 +125,24 @@ class _AddCoursesState extends State<AddCourses> {
                         return null;
                       },
                     ),
+                    SizedBox(height: 15.0),
+                    TextFormField(
+                      controller: _feeController,
+                      decoration: InputDecoration(
+                        hintText: 'Class Fee',
+                        prefixIcon: Icon(Icons.attach_money),
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter the class fee';
+                        }
+                        if (int.tryParse(value) == null) {
+                          return 'Please enter a valid number';
+                        }
+                        return null;
+                      },
+                    ),
                     SizedBox(height: 20.0),
                     _isLoading
                         ? Center(child: CircularProgressIndicator())
@@ -138,6 +157,7 @@ class _AddCoursesState extends State<AddCourses> {
                                   saveCourseToFirestore(
                                     courseName: _courseNameController.text,
                                     instructor: _instructorController.text,
+                                    fee: int.parse(_feeController.text),
                                   ).then((_) {
                                     setState(() {
                                       _isLoading = false;

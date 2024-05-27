@@ -104,9 +104,12 @@ class _BarcodescannerState extends State<Barcodescanner> {
 
   Future<void> _markAttendance(String scannedBarcode) async {
     try {
-      final String currentDate = DateTime.now().toString();
+      final DateTime now = DateTime.now();
+      final String currentDate = now.toIso8601String();
+      final String currentDay =
+          'day${now.day}'; // e.g., 'day27' for the 27th day of the month
 
-      // Check if scannedBarcode matches any registration numbers displayed in previous page
+      // Check if scannedBarcode matches any registration numbers displayed in the previous page
       bool isValidRegNo = await _isValidRegNo(scannedBarcode);
 
       if (!isValidRegNo) {
@@ -142,54 +145,44 @@ class _BarcodescannerState extends State<Barcodescanner> {
       // Check if the attendance record already exists for this barcode
       DocumentSnapshot attendanceSnapshot = await attendanceDocRef.get();
 
-      if (attendanceSnapshot.exists) {
-        // Attendance record already exists, check if already marked as present
-        bool isPresent =
-            attendanceSnapshot.get('attendanceStatus') == 'Present';
-        if (isPresent) {
-          // Student already marked as present, show message and return
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text('Error'),
-              content: Text('Attendance already marked for this student.'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(
-                        builder: (BuildContext context) =>
-                            ViewCourses(widget.teacherName),
-                      ),
-                      (route) => false,
-                    );
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            ),
-          );
-          return;
-        } else {
-          // Update the existing record to mark attendance as present
-          await attendanceDocRef.update({
-            'scannedTime': currentDate,
-            'attendanceStatus': 'Present',
-          });
-        }
-      } else {
-        // Attendance record doesn't exist, create a new record
-        Map<String, dynamic> attendanceRecord = {
-          'date': currentDate,
-          'courseName': widget.courseName,
-          'teacherName': widget.teacherName,
+      // Safely cast the data to a Map<String, dynamic>
+      final data = attendanceSnapshot.data() as Map<String, dynamic>?;
+
+      if (data != null && data.containsKey(currentDay)) {
+        // Attendance already marked for the current day
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Error'),
+            content: Text('Attendance already marked for today.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => MyHomePage(),
+                    ),
+                    (route) => false,
+                  );
+                },
+                child: Text('OK'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+
+      // Update the existing record to mark attendance for the specific day or create a new record
+      await attendanceDocRef.set({
+        currentDay: {
           'scannedTime': currentDate,
           'attendanceStatus': 'Present',
-        };
-
-        // Save the attendance record to the sub-collection within the course document
-        await attendanceDocRef.set(attendanceRecord);
-      }
+        },
+        'courseName': widget.courseName,
+        'teacherName': widget.teacherName,
+      }, SetOptions(merge: true));
 
       // Show success message
       showDialog(
