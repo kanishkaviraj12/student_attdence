@@ -1,13 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 
-class DatabaseMethod {
-  Future addUserDetails(Map<String, dynamic> userInfoMap) async {
-    return await FirebaseFirestore.instance
-        .collection("Users")
-        .doc()
-        .set(userInfoMap);
-  }
-}
+// class DatabaseMethod {
+//   Future addUserDetails(Map<String, dynamic> userInfoMap) async {
+//     return await FirebaseFirestore.instance
+//         .collection("Users")
+//         .doc()
+//         .set(userInfoMap);
+//   }
+// }
 
 // final FirebaseFirestore firestore = FirebaseFirestore.instance;
 // final FirebaseStorage storage = FirebaseStorage.instance;

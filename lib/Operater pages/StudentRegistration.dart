@@ -1,11 +1,11 @@
 // ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, use_super_parameters, prefer_const_constructors_in_immutables, file_names
 
 import 'dart:math';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:student_attdence/Operater%20pages/barcodegenarater.dart';
-import 'package:student_attdence/database.dart';
 
 class StuReg extends StatefulWidget {
   StuReg({Key? key}) : super(key: key);
@@ -214,5 +214,14 @@ class _StuRegState extends State<StuReg> {
         ),
       ),
     );
+  }
+}
+
+class DatabaseMethod {
+  Future addUserDetails(Map<String, dynamic> userInfoMap) async {
+    return await FirebaseFirestore.instance
+        .collection("Users")
+        .doc()
+        .set(userInfoMap);
   }
 }
