@@ -20,7 +20,7 @@ class _ViewCoursesState extends State<ViewCourses> {
   List<Map<String, dynamic>> courses = [];
   Map<String, List<String>> courseStudents = {};
   late Timer _timer;
-  int _totalSeconds = 10; // For example, 10 seconds
+  int _totalSeconds = 20; // For example, 10 seconds 60x60=1h
   int _secondsRemaining = 0;
 
   @override
@@ -57,15 +57,12 @@ class _ViewCoursesState extends State<ViewCourses> {
     });
   }
 
-  void fetchCourses() async {
-    try {
-      CollectionReference courseCollection =
-          FirebaseFirestore.instance.collection('courses');
-
-      QuerySnapshot querySnapshot = await courseCollection
-          .where('instructor', isEqualTo: widget.teacherName)
-          .get();
-
+  void fetchCourses() {
+    FirebaseFirestore.instance
+        .collection('courses')
+        .where('instructor', isEqualTo: widget.teacherName)
+        .snapshots()
+        .listen((querySnapshot) {
       List<Map<String, dynamic>> fetchedCourses = querySnapshot.docs.map((doc) {
         return {
           'courseName': doc['courseName'] as String,
@@ -79,21 +76,20 @@ class _ViewCoursesState extends State<ViewCourses> {
 
       // Fetch students for each course
       for (var course in fetchedCourses) {
-        QuerySnapshot studentSnapshot = await FirebaseFirestore.instance
+        FirebaseFirestore.instance
             .collection('Add Student for courses')
             .where('courses', arrayContains: course['courseName'])
-            .get();
+            .snapshots()
+            .listen((studentSnapshot) {
+          List<String> studentRegNos =
+              studentSnapshot.docs.map((doc) => doc.id).toList();
 
-        List<String> studentRegNos =
-            studentSnapshot.docs.map((doc) => doc.id).toList();
-
-        setState(() {
-          courseStudents[course['courseName']] = studentRegNos;
+          setState(() {
+            courseStudents[course['courseName']] = studentRegNos;
+          });
         });
       }
-    } catch (error) {
-      print("Error fetching courses: $error");
-    }
+    });
   }
 
   Future<void> markAbsentStudents() async {
@@ -185,78 +181,52 @@ class _ViewCoursesState extends State<ViewCourses> {
                   ),
                 );
               },
-              child: FutureBuilder<QuerySnapshot>(
-                future: FirebaseFirestore.instance
-                    .collection('Add Student for courses')
-                    .where('courses', arrayContains: courseName)
-                    .get(),
-                builder: (BuildContext context,
-                    AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    //return CircularProgressIndicator();
-                  }
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return ListTile(
-                      title: Text(courseName),
-                      subtitle: Text('No students registered for this course'),
-                      trailing: Text('Fee: \$${fee}'),
-                    );
-                  }
-
-                  List<String> studentRegNos =
-                      snapshot.data!.docs.map((doc) => doc.id).toList();
-
-                  return Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10.0),
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.teal.shade300,
-                          Colors.teal.shade100,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.teal.shade300,
+                      Colors.teal.shade100,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                margin: EdgeInsets.symmetric(vertical: 10),
+                child: ListTile(
+                  title: Text(
+                    courseName,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Colors.white,
                     ),
-                    margin: EdgeInsets.symmetric(vertical: 10),
-                    child: ListTile(
-                      title: Text(
-                        courseName,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Colors.white,
-                        ),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ...studentRegNos.map((regNo) => Text(
-                                'Student RegNo: $regNo',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.normal,
-                                  color: Color.fromARGB(255, 54, 54, 54),
-                                ),
-                              )),
-                          Text(
-                            'Fee: \$${fee}',
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ...(courseStudents[courseName] ?? []).map((regNo) => Text(
+                            'Student RegNo: $regNo',
                             style: TextStyle(
                               fontSize: 15,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.normal,
                               color: Color.fromARGB(255, 54, 54, 54),
                             ),
-                          ),
-                        ],
+                          )),
+                      Text(
+                        'Fee: \$${fee}',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 54, 54, 54),
+                        ),
                       ),
-                      trailing: Icon(Icons.arrow_forward,
-                          color: Color.fromARGB(255, 0, 17, 255)),
-                    ),
-                  );
-                },
+                    ],
+                  ),
+                  trailing: Icon(Icons.arrow_forward,
+                      color: Color.fromARGB(255, 0, 17, 255)),
+                ),
               ),
             );
           },
