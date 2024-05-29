@@ -225,11 +225,11 @@ class _ViewCoursesState extends State<ViewCourses> {
                             ),
                           )),
                       Text(
-                        'Fee: \$${fee}',
+                        'Fee: LKR ${fee}',
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 54, 54, 54),
+                          color: Color.fromARGB(255, 67, 0, 175),
                         ),
                       ),
                     ],
