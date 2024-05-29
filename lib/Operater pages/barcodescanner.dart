@@ -1,14 +1,17 @@
-// ignore_for_file: use_super_parameters, prefer_const_constructors_in_immutables, use_build_context_synchronously, prefer_const_constructors, avoid_print
+// Import necessary packages and files
+// ignore_for_file: avoid_print, prefer_const_constructors, use_build_context_synchronously, use_super_parameters, prefer_const_constructors_in_immutables
 
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../Home Page/OperaterHome.dart';
+import '../Home Page/OperaterHome.dart'; // Assuming this is the correct path to OperaterHome.dart
 
+// Define a StatefulWidget for the BarcodeScanner
 class Barcodescanner extends StatefulWidget {
   final String courseName;
   final String teacherName;
 
+  // Constructor to initialize courseName and teacherName
   Barcodescanner(
       {Key? key, required this.courseName, required this.teacherName})
       : super(key: key);
@@ -17,42 +20,47 @@ class Barcodescanner extends StatefulWidget {
   State<StatefulWidget> createState() => _BarcodescannerState();
 }
 
+// Define the state for the BarcodeScanner
 class _BarcodescannerState extends State<Barcodescanner> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  bool _isLoading = true;
-  late String _scannedBarcode = '';
+  bool _isLoading = true; // Initial loading state
+  late String _scannedBarcode = ''; // Initially empty barcode string
 
   @override
   void initState() {
     super.initState();
-    _scanBarcode();
+    _scanBarcode(); // Start scanning barcode when the widget is initialized
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Barcode Scanner'),
+        title: Text('Barcode Scanner'), // AppBar title
       ),
       body: _isLoading
           ? Center(
-              child: CircularProgressIndicator(),
+              child:
+                  CircularProgressIndicator(), // Show loading indicator while scanning
             )
           : Center(
-              child: Text('Scanned Barcode: $_scannedBarcode'),
+              child: Text(
+                  'Scanned Barcode: $_scannedBarcode'), // Show scanned barcode when available
             ),
     );
   }
 
+  // Function to scan barcode asynchronously
   Future<void> _scanBarcode() async {
     try {
       String barcode = await FlutterBarcodeScanner.scanBarcode(
-        '#ff6666',
-        'Cancel',
-        true,
-        ScanMode.BARCODE,
+        '#ff6666', // Color of the scan overlay
+        'Cancel', // Cancel button text
+        true, // Use flash
+        ScanMode.BARCODE, // Scan mode
       );
 
+      // Handle if barcode scanning is cancelled
       if (barcode == '-1') {
         showDialog(
           context: context,
@@ -63,7 +71,7 @@ class _BarcodescannerState extends State<Barcodescanner> {
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(); // Dismiss dialog and go back
                 },
                 child: Text('OK'),
               ),
@@ -73,13 +81,16 @@ class _BarcodescannerState extends State<Barcodescanner> {
         return;
       }
 
+      // Update UI with scanned barcode and mark loading as false
       setState(() {
         _scannedBarcode = barcode;
         _isLoading = false;
       });
 
+      // Mark attendance after successful scanning
       await _markAttendance(_scannedBarcode);
     } catch (e) {
+      // Handle any errors occurred during barcode scanning
       setState(() {
         _isLoading = false;
       });
@@ -101,18 +112,19 @@ class _BarcodescannerState extends State<Barcodescanner> {
     }
   }
 
+  // Function to mark attendance based on scanned barcode
+  //the parameter scannedBarcode in the _markAttendance method is not nullable,
   Future<void> _markAttendance(String scannedBarcode) async {
     try {
       final DateTime now = DateTime.now();
       final String currentDate = now.toIso8601String();
-      final String currentDay =
-          'day${now.day}'; // e.g., 'day27' for the 27th day of the month
+      final String currentDay = 'day${now.day}'; // Generate current day string
 
-      // Check if scannedBarcode matches any registration numbers displayed in the previous page
+      // Check if the scanned barcode matches any registration numbers displayed in the previous page
       bool isValidRegNo = await _isValidRegNo(scannedBarcode);
 
+      // If the scanned registration number is invalid, show error dialog
       if (!isValidRegNo) {
-        // Scanned registration number doesn't match any displayed registration numbers
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -147,8 +159,8 @@ class _BarcodescannerState extends State<Barcodescanner> {
       // Safely cast the data to a Map<String, dynamic>
       final data = attendanceSnapshot.data() as Map<String, dynamic>?;
 
+      // If attendance is already marked for the current day, show error dialog
       if (data != null && data.containsKey(currentDay)) {
-        // Attendance already marked for the current day
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -207,7 +219,7 @@ class _BarcodescannerState extends State<Barcodescanner> {
         ),
       );
     } catch (error) {
-      // Show error message
+      // Show error message if marking attendance fails
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -232,6 +244,7 @@ class _BarcodescannerState extends State<Barcodescanner> {
     }
   }
 
+  // Function to check if the scanned registration number is valid
   Future<bool> _isValidRegNo(String regNo) async {
     // Fetch registration numbers displayed in previous page
     try {

@@ -1,12 +1,14 @@
-// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, use_super_parameters, prefer_const_constructors_in_immutables, file_names
+// Import necessary packages and modules
+// ignore_for_file: prefer_const_constructors, use_super_parameters, prefer_const_constructors_in_immutables, library_private_types_in_public_api, file_names
 
-import 'dart:math';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:student_attdence/Operater%20pages/barcodegenarater.dart';
+import 'dart:math'; // For generating random registration number
+import 'package:cloud_firestore/cloud_firestore.dart'; // For Firestore database operations
+import 'package:flutter/material.dart'; // For Flutter UI components
+import 'package:flutter/services.dart'; // For input formatters
+import 'package:fluttertoast/fluttertoast.dart'; // For displaying toast messages
+import 'package:student_attdence/Operater%20pages/barcodegenarater.dart'; // For navigating to BarcodeGenerator page
 
+// Define a StatefulWidget for the Student Registration screen
 class StuReg extends StatefulWidget {
   StuReg({Key? key}) : super(key: key);
 
@@ -14,7 +16,9 @@ class StuReg extends StatefulWidget {
   _StuRegState createState() => _StuRegState();
 }
 
+// State class for the StuReg widget
 class _StuRegState extends State<StuReg> {
+  // Define text controllers for form fields
   final _addressController = TextEditingController();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -25,9 +29,11 @@ class _StuRegState extends State<StuReg> {
   @override
   void initState() {
     super.initState();
-    _regController.text = generateRandomRegNo();
+    _regController.text =
+        generateRandomRegNo(); // Generate a random registration number
   }
 
+  // Function to generate a random registration number
   String generateRandomRegNo() {
     final random = Random();
     int randomNumber = random.nextInt(9000) +
@@ -35,6 +41,7 @@ class _StuRegState extends State<StuReg> {
     return 'anu_$randomNumber'; // Prefix "anu_" followed by the random number
   }
 
+  // Function to upload data to Firestore
   uploadData() async {
     if (_formKey.currentState!.validate()) {
       Map<String, dynamic> uploadData = {
@@ -45,7 +52,8 @@ class _StuRegState extends State<StuReg> {
         "regNo": _regController.text,
       };
 
-      await DatabaseMethod().addUserDetails(uploadData);
+      await DatabaseMethod()
+          .addUserDetails(uploadData); // Add user details to Firestore
     }
   }
 
@@ -95,6 +103,7 @@ class _StuRegState extends State<StuReg> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // Name field
                     TextFormField(
                       controller: _nameController,
                       decoration: InputDecoration(
@@ -102,6 +111,8 @@ class _StuRegState extends State<StuReg> {
                         prefixIcon: Icon(Icons.person),
                       ),
                       validator: (value) {
+                        //null means that the variable has not been assigned any value.
+                        //The .isEmpty property checks if the string is empty.
                         if (value == null || value.isEmpty) {
                           return 'Please enter your name';
                         }
@@ -109,6 +120,7 @@ class _StuRegState extends State<StuReg> {
                       },
                     ),
                     SizedBox(height: 15.0),
+                    // Email field
                     TextFormField(
                       controller: _emailController,
                       decoration: InputDecoration(
@@ -123,6 +135,7 @@ class _StuRegState extends State<StuReg> {
                       },
                     ),
                     SizedBox(height: 15.0),
+                    // Address field
                     TextFormField(
                       controller: _addressController,
                       decoration: InputDecoration(
@@ -131,12 +144,13 @@ class _StuRegState extends State<StuReg> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your Address';
+                          return 'Please enter your address';
                         }
                         return null;
                       },
                     ),
                     SizedBox(height: 15.0),
+                    // Mobile number field
                     TextFormField(
                       controller: _mobileController,
                       decoration: InputDecoration(
@@ -162,6 +176,7 @@ class _StuRegState extends State<StuReg> {
                       ],
                     ),
                     SizedBox(height: 15.0),
+                    // Registration number field (read-only)
                     TextFormField(
                       controller: _regController,
                       decoration: InputDecoration(
@@ -171,10 +186,11 @@ class _StuRegState extends State<StuReg> {
                       enabled: false, // Disable editing
                     ),
                     SizedBox(height: 20.0),
+                    // Submit button
                     ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          uploadData();
+                          uploadData(); // Upload data to Firestore
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => BarcodeGenerator(
@@ -217,11 +233,10 @@ class _StuRegState extends State<StuReg> {
   }
 }
 
+// Class to handle Firestore database operations
 class DatabaseMethod {
   Future addUserDetails(Map<String, dynamic> userInfoMap) async {
-    return await FirebaseFirestore.instance
-        .collection("Users")
-        .doc()
-        .set(userInfoMap);
+    return await FirebaseFirestore.instance.collection("Users").doc().set(
+        userInfoMap); // Add user details to "Users" collection in Firestore
   }
 }

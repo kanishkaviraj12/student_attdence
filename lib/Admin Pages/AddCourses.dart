@@ -1,9 +1,11 @@
-// ignore_for_file: prefer_const_constructors_in_immutables, prefer_const_constructors, file_names
+// Required Flutter and Firebase imports
+// ignore_for_file: prefer_const_constructors, prefer_const_constructors_in_immutables
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+// Define a StatefulWidget for adding courses
 class AddCourses extends StatefulWidget {
   AddCourses({super.key});
 
@@ -11,24 +13,34 @@ class AddCourses extends StatefulWidget {
   State<AddCourses> createState() => _AddCoursesState();
 }
 
+// The state class for AddCourses
 class _AddCoursesState extends State<AddCourses> {
+  // Controllers for managing input fields
   final TextEditingController _courseNameController = TextEditingController();
   final TextEditingController _instructorController = TextEditingController();
   final TextEditingController _feeController = TextEditingController();
+
+  // Key for the form to validate input
+  //GlobalKey<FormState> is a class provided by the Flutter framework.
   final _formKey = GlobalKey<FormState>();
+
+  // Loading state to show a progress indicator
   bool _isLoading = false;
 
+  // Method to save course details to Firestore
   Future<void> saveCourseToFirestore({
-    required String courseName,
+    required String courseName, // named parameters for the method.
     required String instructor,
     required int fee,
   }) async {
     try {
+      // Add course details to the 'courses' collection in Firestore
       await FirebaseFirestore.instance.collection('courses').add({
         'courseName': courseName,
         'instructor': instructor,
         'fee': fee,
       });
+      // Show success toast
       Fluttertoast.showToast(
           msg: "Course added successfully",
           toastLength: Toast.LENGTH_SHORT,
@@ -38,6 +50,7 @@ class _AddCoursesState extends State<AddCourses> {
           textColor: Colors.white,
           fontSize: 16.0);
     } catch (e) {
+      // Show error toast if there's an exception
       Fluttertoast.showToast(
           msg: "Error adding course: $e",
           toastLength: Toast.LENGTH_SHORT,
@@ -49,7 +62,7 @@ class _AddCoursesState extends State<AddCourses> {
     }
   }
 
-  @override
+  @override //a method in a subclass is overriding a method of its superclass.
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -152,6 +165,7 @@ class _AddCoursesState extends State<AddCourses> {
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: () {
+                                // Validate the form and save to Firestore
                                 if (_formKey.currentState!.validate()) {
                                   setState(() {
                                     _isLoading = true;
@@ -166,6 +180,7 @@ class _AddCoursesState extends State<AddCourses> {
                                     });
                                   });
                                 } else {
+                                  // Show error toast if form validation fails
                                   Fluttertoast.showToast(
                                       msg: "Please fix errors in the form.",
                                       toastLength: Toast.LENGTH_SHORT,

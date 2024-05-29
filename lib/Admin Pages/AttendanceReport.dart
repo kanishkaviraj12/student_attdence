@@ -1,31 +1,40 @@
+// Ignore certain lint rules for this file
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, avoid_print, library_private_types_in_public_api, use_key_in_widget_constructors, file_names
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// Main StatefulWidget class for Attendance Report
 class AttendanceReport extends StatefulWidget {
   @override
   _AttendanceReportState createState() => _AttendanceReportState();
 }
 
+// State class for AttendanceReport
 class _AttendanceReportState extends State<AttendanceReport> {
+  // Future to hold the fetched attendance data
   late Future<List<Map<String, dynamic>>> _attendanceData;
 
   @override
   void initState() {
     super.initState();
+    // Initialize the attendance data fetching when the state is created
     _attendanceData = fetchAttendanceData();
   }
 
+  // Method to fetch attendance data from Firestore
   Future<List<Map<String, dynamic>>> fetchAttendanceData() async {
     try {
+      // Fetch documents from 'Students RegNo' collection group
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collectionGroup('Students RegNo')
           .get();
 
       List<Map<String, dynamic>> attendanceList = [];
 
+      // Iterate through each document in the query snapshot
       for (var document in querySnapshot.docs) {
+        // Convert document data to Map
         Map<String, dynamic> data = document.data() as Map<String, dynamic>;
         data['studentRegNo'] =
             document.id.toString(); // Convert DocumentID to String
@@ -45,6 +54,7 @@ class _AttendanceReportState extends State<AttendanceReport> {
 
       return attendanceList;
     } catch (error) {
+      // Print error if data fetching fails
       print("Error fetching attendance data: $error");
       return [];
     }
@@ -91,15 +101,20 @@ class _AttendanceReportState extends State<AttendanceReport> {
           future: _attendanceData,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
+              // Show a loading spinner while data is being fetched
               return Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
+              // Show an error message if there is an error
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              // Show a message if there is no data
               return Center(child: Text('No attendance data available'));
             } else {
+              // Group data by course name and student registration number
               Map<String, Map<String, List<Map<String, dynamic>>>> groupedData =
                   _groupData(snapshot.data!);
 
+              // Build the data table
               return SingleChildScrollView(
                 scrollDirection: Axis.vertical,
                 child: SingleChildScrollView(
@@ -146,6 +161,7 @@ class _AttendanceReportState extends State<AttendanceReport> {
     return groupedData;
   }
 
+  // Build rows for the DataTable
   List<DataRow> _buildDataRows(
       Map<String, Map<String, List<Map<String, dynamic>>>> groupedData) {
     List<DataRow> rows = [];
@@ -169,6 +185,7 @@ class _AttendanceReportState extends State<AttendanceReport> {
             textColor = Colors.red;
           }
 
+          // Create DataRow for each attendance record
           rows.add(DataRow(cells: [
             isFirstCourseRow
                 ? DataCell(Text(courseName,
@@ -184,8 +201,10 @@ class _AttendanceReportState extends State<AttendanceReport> {
             DataCell(Text(scannedTime)),
           ]));
 
-          isFirstCourseRow = false;
-          isFirstStudentRow = false;
+          isFirstCourseRow =
+              false; // Only show course name in the first row of the course
+          isFirstStudentRow =
+              false; // Only show student regNo in the first row of the student
         }
       });
     });

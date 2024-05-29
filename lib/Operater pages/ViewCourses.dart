@@ -1,12 +1,13 @@
-// ignore_for_file: use_super_parameters, prefer_const_constructors_in_immutables, prefer_const_constructors, avoid_print, unnecessary_brace_in_string_interps, prefer_final_fields, file_names
+// Required imports for Flutter, Firestore, and other necessary packages
+// ignore_for_file: prefer_const_constructors, unnecessary_brace_in_string_interps, use_super_parameters, prefer_const_constructors_in_immutables, prefer_final_fields
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:student_attdence/Home%20Page/OperaterHome.dart';
 import 'dart:async';
-
 import 'package:student_attdence/Operater%20pages/barcodescanner.dart';
 
+// Stateful widget for viewing courses
 class ViewCourses extends StatefulWidget {
   final String teacherName;
 
@@ -17,50 +18,55 @@ class ViewCourses extends StatefulWidget {
 }
 
 class _ViewCoursesState extends State<ViewCourses> {
-  List<Map<String, dynamic>> courses = [];
-  Map<String, List<String>> courseStudents = {};
-  late Timer _timer;
-  int _totalSeconds = 20; // For example, 10 seconds 60x60=1h
-  int _secondsRemaining = 0;
+  List<Map<String, dynamic>> courses = []; // List to store courses
+  Map<String, List<String>> courseStudents =
+      {}; // Map to store students for each course
+  late Timer _timer; // Timer for countdown
+  int _totalSeconds =
+      20; // Total countdown time in seconds (example 20 seconds) 60x60 = 3600 = 1h
+  int _secondsRemaining = 0; // Remaining seconds in countdown
 
   @override
   void initState() {
     super.initState();
-    _secondsRemaining = _totalSeconds;
-    fetchCourses();
-    startTimer();
+    _secondsRemaining = _totalSeconds; // Initialize remaining seconds
+    fetchCourses(); // Fetch courses when the widget is initialized
+    startTimer(); // Start the countdown timer
   }
 
   @override
   void dispose() {
-    _timer.cancel();
+    _timer.cancel(); // Cancel the timer when the widget is disposed
     super.dispose();
   }
 
+  // Function to start the countdown timer
   void startTimer() {
     const oneSecond = Duration(seconds: 1);
     _timer = Timer.periodic(oneSecond, (Timer timer) {
       if (_secondsRemaining == 0) {
-        timer.cancel();
-        markAbsentStudents();
+        timer.cancel(); // Cancel the timer when it reaches 0
+        markAbsentStudents(); // Mark absent students
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => MyHomePage(),
+            builder: (context) => MyHomePage(), // Navigate to Home Page
           ),
         );
       } else {
         setState(() {
-          _secondsRemaining--;
+          _secondsRemaining--; // Decrease the remaining seconds
         });
       }
     });
   }
 
+  // Function to fetch courses from Firestore
   void fetchCourses() {
     FirebaseFirestore.instance
         .collection('courses')
-        .where('instructor', isEqualTo: widget.teacherName)
+        .where('instructor',
+            isEqualTo: widget.teacherName) // Filter by instructor
         .snapshots()
         .listen((querySnapshot) {
       List<Map<String, dynamic>> fetchedCourses = querySnapshot.docs.map((doc) {
@@ -70,8 +76,9 @@ class _ViewCoursesState extends State<ViewCourses> {
         };
       }).toList();
 
+      //setState is a updating the state of a widget.
       setState(() {
-        courses = fetchedCourses;
+        courses = fetchedCourses; // Update courses list
       });
 
       // Fetch students for each course
@@ -84,17 +91,20 @@ class _ViewCoursesState extends State<ViewCourses> {
           List<String> studentRegNos =
               studentSnapshot.docs.map((doc) => doc.id).toList();
 
+          //setState is a updating the state of a widget.
           setState(() {
-            courseStudents[course['courseName']] = studentRegNos;
+            courseStudents[course['courseName']] =
+                studentRegNos; // Update students list
           });
         });
       }
     });
   }
 
+  // Function to mark absent students
   Future<void> markAbsentStudents() async {
     String currentDay =
-        'day${DateTime.now().day}'; // Automatically set current day, e.g., 'day27'
+        'day${DateTime.now().day}'; // Get current day, e.g., 'day27'
 
     for (var course in courses) {
       String courseName = course['courseName'];
@@ -109,13 +119,12 @@ class _ViewCoursesState extends State<ViewCourses> {
               .doc(student)
               .get();
 
-          // Safely cast the data to a Map<String, dynamic>
           final data = attendanceSnapshot.data() as Map<String, dynamic>?;
 
           if (data == null ||
               !data.containsKey(currentDay) ||
               data[currentDay]['attendanceStatus'] != 'Present') {
-            // Mark the student as absent if no attendance record exists for the specific day or if not marked as present
+            // Mark student as absent if no record or not marked as present
             await FirebaseFirestore.instance
                 .collection('Attendance')
                 .doc(courseName)
@@ -135,6 +144,7 @@ class _ViewCoursesState extends State<ViewCourses> {
     }
   }
 
+  // Helper functions to format remaining time
   String getHours() {
     return '${(_secondsRemaining ~/ 3600).toString().padLeft(2, '0')}h';
   }
@@ -170,7 +180,7 @@ class _ViewCoursesState extends State<ViewCourses> {
             int fee = courses[index]['fee'];
             return GestureDetector(
               onTap: () {
-                _timer.cancel(); // Stop the timer
+                _timer.cancel(); // Stop the timer on tap
                 Navigator.push(
                   context,
                   MaterialPageRoute(

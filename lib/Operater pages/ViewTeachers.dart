@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:student_attdence/Operater%20pages/ViewCourses.dart';
 
+// Define a stateless widget called ViewTeachers
 class ViewTeachers extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Define the AppBar
       appBar: AppBar(
         title: Text(
           'Teachers',
@@ -20,16 +22,19 @@ class ViewTeachers extends StatelessWidget {
         backgroundColor: Colors.teal,
         elevation: 4.0,
         centerTitle: true,
-        automaticallyImplyLeading: false, //remove backbutton
+        automaticallyImplyLeading: false, // Remove the back button
       ),
+      // Define the body of the Scaffold with a StreamBuilder.This is particularly useful for real-time data updates
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('courses').snapshots(),
         builder: (context, snapshot) {
+          // Show a loading indicator while waiting for data
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
               child: CircularProgressIndicator(),
             );
           }
+          // Display an error message if there's an error
           if (snapshot.hasError) {
             return Center(
               child: Text(
@@ -41,6 +46,7 @@ class ViewTeachers extends StatelessWidget {
               ),
             );
           }
+          // Show a message if no data is found
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return Center(
               child: Text(
@@ -60,12 +66,14 @@ class ViewTeachers extends StatelessWidget {
 
           return Padding(
             padding: EdgeInsets.all(20.0),
+            // Use GridView to display teacher names
             child: GridView.count(
-              crossAxisCount: 1,
-              childAspectRatio: 3.0,
+              crossAxisCount: 1, // One item per row
+              childAspectRatio: 3.0, // Height to width ratio of each item
               children: List.generate(teacherNames.length, (index) {
                 return GestureDetector(
                   onTap: () {
+                    // Navigate to ViewCourses when a teacher card is tapped
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -73,6 +81,7 @@ class ViewTeachers extends StatelessWidget {
                       ),
                     );
                   },
+                  // Define the card for each teacher
                   child: Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
@@ -93,10 +102,11 @@ class ViewTeachers extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.person, // Add your icon here
+                              Icons.person, // Teacher icon
                               color: Colors.white,
                             ),
-                            SizedBox(width: 10), // Adjust spacing as needed
+                            SizedBox(
+                                width: 10), // Spacing between icon and text
                             Text(
                               teacherNames[index],
                               style: TextStyle(

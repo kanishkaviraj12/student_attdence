@@ -1,16 +1,22 @@
-// ignore_for_file: use_key_in_widget_constructors, file_names, library_private_types_in_public_api, prefer_const_constructors, sort_child_properties_last, avoid_print, sized_box_for_whitespace
+// Necessary imports for the Flutter application and Firestore integration.
+// ignore_for_file: prefer_const_constructors, avoid_print, sized_box_for_whitespace, sort_child_properties_last, library_private_types_in_public_api, use_key_in_widget_constructors, file_names
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// Main widget for adding a student, extending StatefulWidget to maintain state.
 class AddStudent extends StatefulWidget {
   @override
   _AddStudentState createState() => _AddStudentState();
 }
 
+// State class for the AddStudent widget.
 class _AddStudentState extends State<AddStudent> {
+  // Controller to manage the text input in the search field.
   TextEditingController searchController = TextEditingController();
+  // Variable to hold the search term entered by the user.
   String searchTerm = '';
+  // List to hold selected courses for a student.
   List<String> selectedCourses = [];
 
   @override
@@ -20,8 +26,8 @@ class _AddStudentState extends State<AddStudent> {
         title: Text('Search Student',
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         backgroundColor: Colors.teal,
-        automaticallyImplyLeading: false, //remove backbutton
-        centerTitle: true,
+        automaticallyImplyLeading: false, // Removes the back button.
+        centerTitle: true, // Centers the title in the AppBar.
       ),
       body: Column(
         children: [
@@ -38,15 +44,16 @@ class _AddStudentState extends State<AddStudent> {
                         labelText: 'Enter Registration Number',
                         filled: true,
                         fillColor:
-                            Colors.teal.shade50, // Use registration page color
+                            Colors.teal.shade50, // Sets the background color.
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(70.0),
-                          borderSide: BorderSide.none,
+                          borderSide: BorderSide.none, // Removes the border.
                         ),
                       ),
                       onChanged: (value) {
                         setState(() {
-                          searchTerm = value;
+                          searchTerm =
+                              value; // Updates the search term as the user types.
                         });
                       },
                     ),
@@ -55,7 +62,7 @@ class _AddStudentState extends State<AddStudent> {
                 SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: () {
-                    // Perform search action
+                    // Updates the search term when the search button is pressed.
                     setState(() {
                       searchTerm = searchController.text;
                     });
@@ -63,8 +70,7 @@ class _AddStudentState extends State<AddStudent> {
                   child: Text('Search'),
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.teal,
-                      foregroundColor:
-                          Colors.white // Use registration page color
+                      foregroundColor: Colors.white // Sets the button colors.
                       ),
                 ),
               ],
@@ -72,33 +78,38 @@ class _AddStudentState extends State<AddStudent> {
           ),
           SizedBox(height: 20),
           Expanded(
+            // StreamBuilder to listen for real-time updates from Firestore.
             child: StreamBuilder(
               stream:
                   FirebaseFirestore.instance.collection('Users').snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
-                    child: CircularProgressIndicator(),
+                    child:
+                        CircularProgressIndicator(), // Shows a loading spinner.
                   );
                 }
                 if (snapshot.hasError) {
                   return Center(
-                    child: Text('Error: ${snapshot.error}'),
+                    child: Text(
+                        'Error: ${snapshot.error}'), // Shows error message.
                   );
                 }
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                   return Center(
-                    child: Text('No students found'),
+                    child: Text(
+                        'No students found'), // Shows message if no data is found.
                   );
                 }
 
-                // Filter documents based on search term
+                // Filters the documents based on the search term.
                 List<DocumentSnapshot> filteredDocs =
                     snapshot.data!.docs.where((doc) {
                   String regNo = doc['regNo'].toString().toLowerCase();
                   return regNo.contains(searchTerm.toLowerCase());
                 }).toList();
 
+                // Builds a list view of the filtered documents.
                 return ListView.builder(
                   itemCount: filteredDocs.length,
                   itemBuilder: (context, index) {
@@ -108,6 +119,7 @@ class _AddStudentState extends State<AddStudent> {
                         style: TextStyle(fontSize: 16.0),
                       ),
                       onTap: () {
+                        // Shows the course selection dialog when a student is tapped.
                         _showCourseSelectionDialog(
                             context, filteredDocs[index]['regNo'].toString());
                       },
@@ -122,12 +134,15 @@ class _AddStudentState extends State<AddStudent> {
     );
   }
 
+  // Function to show the course selection dialog.
   void _showCourseSelectionDialog(BuildContext context, String regNo) {
+    // Temporary list to hold the courses selected in the dialog.
     List<String> tempSelectedCourses = List.from(selectedCourses);
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        // StatefulBuilder to maintain state inside the dialog.
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
@@ -137,6 +152,7 @@ class _AddStudentState extends State<AddStudent> {
               ),
               content: Container(
                 width: double.maxFinite,
+                // StreamBuilder to listen for real-time updates from the courses collection.
                 child: StreamBuilder(
                   stream: FirebaseFirestore.instance
                       .collection('courses')
@@ -144,19 +160,23 @@ class _AddStudentState extends State<AddStudent> {
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(
-                        child: CircularProgressIndicator(),
+                        child:
+                            CircularProgressIndicator(), // Shows a loading spinner.
                       );
                     }
                     if (snapshot.hasError) {
                       return Center(
-                        child: Text('Error: ${snapshot.error}'),
+                        child: Text(
+                            'Error: ${snapshot.error}'), // Shows error message.
                       );
                     }
                     if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                       return Center(
-                        child: Text('No courses found'),
+                        child: Text(
+                            'No courses found'), // Shows message if no data is found.
                       );
                     }
+                    // Retrieves the list of all courses.
                     List<String> allCourses = snapshot.data!.docs
                         .map((doc) => doc['courseName'].toString())
                         .toList();
@@ -187,7 +207,8 @@ class _AddStudentState extends State<AddStudent> {
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    Navigator.of(context)
+                        .pop(); // Closes the dialog without saving.
                   },
                   child: Text(
                     'Cancel',
@@ -196,25 +217,24 @@ class _AddStudentState extends State<AddStudent> {
                 ),
                 TextButton(
                   onPressed: () {
-                    // Save selected courses to Firestore for the student
+                    // Saves the selected courses to Firestore.
                     FirebaseFirestore.instance
                         .collection('Add Student for courses')
-                        .doc(regNo) // Use regNo as document ID
+                        .doc(regNo) // Uses regNo as the document ID.
                         .set({
                       'courses': tempSelectedCourses,
                       'timestamp':
-                          FieldValue.serverTimestamp(), // Add timestamp
+                          FieldValue.serverTimestamp(), // Adds a timestamp.
                     }).then((_) {
                       setState(() {
-                        selectedCourses.clear(); // Clear selections
+                        selectedCourses.clear(); // Clears the selections.
                       });
-                      Navigator.pop(context); // Go back to previous screen
+                      Navigator.pop(context); // Closes the dialog.
                       _showConfirmationMessage(
-                          context); // Show confirmation message
+                          context); // Shows a confirmation message.
                     }).catchError((error) {
-                      // Handle error if any
+                      // Handles any errors.
                       print("Failed to save courses: $error");
-                      // You can show a snackbar or dialog to inform the user
                     });
                   },
                   child: Text(
@@ -230,6 +250,7 @@ class _AddStudentState extends State<AddStudent> {
     );
   }
 
+  // Function to show a confirmation message after saving the courses.
   void _showConfirmationMessage(BuildContext context) {
     showDialog(
       context: context,
@@ -245,7 +266,7 @@ class _AddStudentState extends State<AddStudent> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Closes the dialog.
               },
               child: Text(
                 'OK',
@@ -258,6 +279,7 @@ class _AddStudentState extends State<AddStudent> {
     );
   }
 
+  // Disposes the controller to free up resources when the widget is destroyed.
   @override
   void dispose() {
     searchController.dispose();
