@@ -7,9 +7,9 @@
 ## About The Project
 <p>Student attendance marking app is when teachers keep track of who's in class and who's not. They usually do this by taking note of students' names when they come to class and marking if they're absent or present. It helps teachers know who's there to learn and who might need extra help.</p><br>
 
-![Artboard 1](https://github.com/kanishkaviraj12/student_attdence/assets/74193616/6ce49a1d-42e2-448f-a336-b0ea0b69f0a4)
-![Artboard 2](https://github.com/kanishkaviraj12/student_attdence/assets/74193616/6afcec55-96ae-48c7-9bce-89b14f77a290)
-![Artboard 3](https://github.com/kanishkaviraj12/student_attdence/assets/74193616/74aca808-d2f4-4848-842b-a1ae743aeeea)
+![Artboard 1 (1)](https://github.com/kanishkaviraj12/student_attdence/assets/74193616/aea7b4b7-501f-4f3b-b5da-87e6a3ce0040)
+![Artboard 2 (1)](https://github.com/kanishkaviraj12/student_attdence/assets/74193616/d38ca9af-1310-4bb2-a105-0a84b00f8173)
+![Artboard 3 (1)](https://github.com/kanishkaviraj12/student_attdence/assets/74193616/13ad9a99-0f0b-49c5-a15f-b446bd82e028)
 
 ![image](https://github.com/kanishkaviraj12/student_attdence/assets/74193616/591e8951-046d-4f2d-8316-98daeb22a97e)
 ![image](https://github.com/kanishkaviraj12/student_attdence/assets/74193616/370c4c61-f304-470d-94c6-ec80d22c0e3c)
